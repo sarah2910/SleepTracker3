@@ -31,4 +31,12 @@
 
     <include layout="@layout/content_main" />
 
+    <Button
+        android:id="@+id/button"
+        android:layout_width="265dp"
+        android:layout_height="164dp"
+        android:text="TEST"
+        android:textColor="#FFFFFF"
+        android:textStyle="bold" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
