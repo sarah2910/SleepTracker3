@@ -4,6 +4,11 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="..\:/Users/roari/AndroidStudioProjects/SleepTracker3/app/src/main/res/layout/activity_main.xml" value="0.16691995947315097" />
+        <entry key="..\:/Users/roari/Desktop/SleepTracker3/app/src/main/res/drawable-v24/ic_evaluation.xml" value="0.23177083333333334" />
+        <entry key="..\:/Users/roari/Desktop/SleepTracker3/app/src/main/res/drawable-v24/item_selector.xml" value="0.2375" />
+        <entry key="..\:/Users/roari/Desktop/SleepTracker3/app/src/main/res/layout/activity_main.xml" value="0.21739130434782608" />
+        <entry key="..\:/Users/roari/Desktop/SleepTracker3/app/src/main/res/layout/fragment_evaluation.xml" value="0.215625" />
+        <entry key="..\:/Users/roari/Desktop/SleepTracker3/app/src/main/res/menu/bottom_menu.xml" value="0.22135416666666666" />
       </map>
     </option>
   </component>
