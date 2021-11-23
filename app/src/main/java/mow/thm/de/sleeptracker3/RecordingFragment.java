@@ -1,10 +1,15 @@
 package mow.thm.de.sleeptracker3;
 
+import android.content.pm.PackageManager;
+import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 /**
@@ -22,6 +27,12 @@ public class RecordingFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private Button startbtn, stopbtn;                           //Die Start und Stop Buttons
+    private MediaRecorder recorder;                             //Der Recorder
+    private static final String LOG_TAG = "AudioRecording";     //...
+    private static String mFileName = null;                     //Der noch leere Dateiname
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;  //...
 
     public RecordingFragment() {
         // Required empty public constructor
@@ -52,12 +63,44 @@ public class RecordingFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setOutputFile("PATH_NAME");
+
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_recording, container, false);
+
+        View rootView = inflater.inflate(R.layout.fragment_recording, container, false);
+
+        startbtn = (Button)rootView.findViewById(R.id.btnRecord);
+        stopbtn = (Button)rootView.findViewById(R.id.btnStop);
+        stopbtn.setEnabled(false);
+
+        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
+        mFileName += " /AudioRecording.3gp";
+
+        startbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(CheckPermissions()) {
+
+                }
+
+            }
+        });
+
+
+        return rootView;
+    }
+
+    public boolean CheckPermissions() {
+
+        return true;
     }
 }
