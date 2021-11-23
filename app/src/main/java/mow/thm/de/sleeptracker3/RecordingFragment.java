@@ -1,16 +1,26 @@
 package mow.thm.de.sleeptracker3;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
+
+import java.io.File;
+import java.io.IOException;
+
+import static android.Manifest.permission.RECORD_AUDIO;
+import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -63,13 +73,6 @@ public class RecordingFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
-
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-        recorder.setOutputFile("PATH_NAME");
-
     }
 
     @Override
@@ -82,16 +85,52 @@ public class RecordingFragment extends Fragment {
         stopbtn = (Button)rootView.findViewById(R.id.btnStop);
         stopbtn.setEnabled(false);
 
+        String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder/";
+        File dir = new File(path);
+        if(!dir.exists())
+            dir.mkdirs();
+        String myfile = path + "filename" + ".3gp";
+
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += " /AudioRecording.3gp";
+        mFileName += "/AudioRecording.3gp";
 
         startbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(CheckPermissions()) {
+                    Log.e(LOG_TAG, "permissions passen");
+                    stopbtn.setEnabled(true);
+                    startbtn.setEnabled(false);
+                    recorder = new MediaRecorder();
+                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+                    recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+                    recorder.setOutputFile(myfile);
 
+                    try {
+                        recorder.prepare();
+                    } catch (IOException e) {
+                        Log.e(LOG_TAG, "prepare() failed");
+                        System.out.println(""+e);
+                    }
+
+                    recorder.start();
+                    Toast.makeText(getActivity().getApplicationContext(), "Recording Started", Toast.LENGTH_LONG).show();
+                } else {
+                    RequestPermissions();
                 }
 
+            }
+        });
+
+        stopbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                stopbtn.setEnabled(false);
+                startbtn.setEnabled(true);
+                recorder.stop();
+                recorder.release();
+                recorder = null;
             }
         });
 
@@ -99,8 +138,31 @@ public class RecordingFragment extends Fragment {
         return rootView;
     }
 
-    public boolean CheckPermissions() {
-
-        return true;
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_AUDIO_PERMISSION_CODE:
+                if (grantResults.length> 0) {
+                    boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    boolean permissionToStore = grantResults[1] ==  PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord && permissionToStore) {
+                        Toast.makeText(getActivity().getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getActivity().getApplicationContext(),"Permission Denied",Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+        }
     }
+
+    public boolean CheckPermissions() {
+        int result = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), WRITE_EXTERNAL_STORAGE);
+        int result1 = ContextCompat.checkSelfPermission(getActivity().getApplicationContext(), RECORD_AUDIO);
+        return result == PackageManager.PERMISSION_GRANTED && result1 == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void RequestPermissions() {
+        requestPermissions(new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
+    }
+
 }
