@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "841479954886",
+    "project_id": "sleeptracker-6bd57",
+    "storage_bucket": "sleeptracker-6bd57.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:841479954886:android:73b62d1694778c65e612c7",
+        "android_client_info": {
+          "package_name": "mow.thm.de.sleeptracker3"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "841479954886-371j5i5c3ellh2qenv615c8cb4oumv33.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCs2TtNPwehIdQ5gpjPhAvzu5wJyWG5wMM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "841479954886-371j5i5c3ellh2qenv615c8cb4oumv33.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
