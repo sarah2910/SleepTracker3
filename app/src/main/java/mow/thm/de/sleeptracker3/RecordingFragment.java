@@ -1,7 +1,12 @@
 package mow.thm.de.sleeptracker3;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
@@ -27,7 +32,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  * Use the {@link RecordingFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class RecordingFragment extends Fragment {
+public class RecordingFragment extends Fragment implements SensorEventListener {
 
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -38,11 +43,13 @@ public class RecordingFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private Button startbtn, stopbtn;                           //Die Start und Stop Buttons
-    private MediaRecorder recorder;                             //Der Recorder
-    private static final String LOG_TAG = "AudioRecording";     //...
-    private static String mFileName = null;                     //Der noch leere Dateiname
-    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;  //...
+    private Button startbtn, stopbtn, startSensorBtn, stopSensorBtn;
+    private MediaRecorder recorder;
+    private Sensor mySensor;
+    private SensorManager SM;
+    private static final String LOG_TAG = "AudioRecording";
+    private static String mFileName = null;
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
 
     public RecordingFragment() {
         // Required empty public constructor
@@ -73,6 +80,9 @@ public class RecordingFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+        mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     }
 
     @Override
@@ -82,17 +92,17 @@ public class RecordingFragment extends Fragment {
         View rootView = inflater.inflate(R.layout.fragment_recording, container, false);
 
         startbtn = (Button)rootView.findViewById(R.id.btnRecord);
+        startSensorBtn = (Button)rootView.findViewById(R.id.btnSensorRecord);
         stopbtn = (Button)rootView.findViewById(R.id.btnStop);
+        stopSensorBtn = (Button)rootView.findViewById(R.id.btnSensorStop);
         stopbtn.setEnabled(false);
+        stopSensorBtn.setEnabled(false);
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder/";
         File dir = new File(path);
         if(!dir.exists())
             dir.mkdirs();
         String myfile = path + "filename" + ".3gp";
-
-        mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += "/AudioRecording.3gp";
 
         startbtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,6 +133,15 @@ public class RecordingFragment extends Fragment {
             }
         });
 
+        startSensorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSensorBtn.setEnabled(true);
+                startSensorBtn.setEnabled(false);
+                createSensor();
+            }
+        });
+
         stopbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -131,6 +150,15 @@ public class RecordingFragment extends Fragment {
                 recorder.stop();
                 recorder.release();
                 recorder = null;
+            }
+        });
+
+        stopSensorBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                stopSensorBtn.setEnabled(false);
+                startSensorBtn.setEnabled(true);
+                onPause();
             }
         });
 
@@ -164,5 +192,31 @@ public class RecordingFragment extends Fragment {
     private void RequestPermissions() {
         requestPermissions(new String[]{RECORD_AUDIO, WRITE_EXTERNAL_STORAGE}, REQUEST_AUDIO_PERMISSION_CODE);
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        System.out.println("X: " + event.values[0]);
+        System.out.println("Y: " + event.values[1]);
+        System.out.println("Z: " + event.values[2]);
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        //Nicht genutzt
+    }
+
+    public void createSensor() {
+        SM.registerListener(this, mySensor,  1000000, 1000000);
+    }
+
+    public void stopSensor() {
+        SM.unregisterListener(this, SM.getDefaultSensor(Sensor.TYPE_PROXIMITY));;
+    }
+
+    public void onPause() {
+        super.onPause();
+        SM.unregisterListener(this);
+    }
+
 
 }
