@@ -23,6 +23,9 @@ import androidx.fragment.app.Fragment;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
@@ -47,6 +50,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private MediaRecorder recorder;
     private Sensor mySensor;
     private SensorManager SM;
+    Timer timer;
+    ArrayList<Float> movementDataX;
+    ArrayList<Float> movementDataY;
+    ArrayList<Float> movementDataZ;
     private static final String LOG_TAG = "AudioRecording";
     private static String mFileName = null;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
@@ -83,6 +90,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
         SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        movementDataX = new ArrayList<Float>();
+        movementDataY = new ArrayList<Float>();
+        movementDataZ = new ArrayList<Float>();
     }
 
     @Override
@@ -136,9 +146,55 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         startSensorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                movementDataX.clear();
+                movementDataY.clear();
+                movementDataZ.clear();
+
+                timer = new Timer();
+
                 stopSensorBtn.setEnabled(true);
                 startSensorBtn.setEnabled(false);
                 createSensor();
+
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        float x = 0;
+                        float y = 0;
+                        float z = 0;
+
+                        onPause();
+
+                        for (int i = 0; i < movementDataX.size(); i++) {
+                            x += Math.abs(movementDataX.get(i));
+                        }
+
+                        for (int i = 0; i < movementDataY.size(); i++) {
+                            y += Math.abs(movementDataY.get(i));
+                        }
+
+                        for (int i = 0; i < movementDataZ.size(); i++) {
+                            z += Math.abs(movementDataZ.get(i));
+                        }
+
+                        x = x%movementDataX.size();
+                        y = y%movementDataY.size();
+                        z = z%movementDataZ.size();
+
+
+                        System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
+                        System.out.println("Im Mittel alle 3 Sekunden auf der Y Achse: " + y);
+                        System.out.println("Im Mittel alle 3 Sekunden auf der Z Achse: " + z);
+
+                        movementDataX.clear();
+                        movementDataY.clear();
+                        movementDataZ.clear();
+
+                        createSensor();
+                    }
+                }, 0, 3000);
+
             }
         });
 
@@ -156,6 +212,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         stopSensorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                timer.cancel();
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
                 onPause();
@@ -195,9 +252,16 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
     @Override
     public void onSensorChanged(SensorEvent event) {
+
+        movementDataX.add(event.values[0]);
+        movementDataY.add(event.values[1]);
+        movementDataZ.add(event.values[2]);
+
+        /*
         System.out.println("X: " + event.values[0]);
         System.out.println("Y: " + event.values[1]);
         System.out.println("Z: " + event.values[2]);
+        */
     }
 
     @Override
@@ -206,16 +270,16 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     }
 
     public void createSensor() {
-        SM.registerListener(this, mySensor,  1000000, 1000000);
-    }
-
-    public void stopSensor() {
-        SM.unregisterListener(this, SM.getDefaultSensor(Sensor.TYPE_PROXIMITY));;
+        SM.registerListener(this, mySensor,  10000000, 10000000);
     }
 
     public void onPause() {
         super.onPause();
         SM.unregisterListener(this);
+    }
+
+    public void averageMovement() {
+
     }
 
 
