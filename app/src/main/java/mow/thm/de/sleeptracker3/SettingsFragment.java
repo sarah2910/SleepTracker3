@@ -1,11 +1,25 @@
 package mow.thm.de.sleeptracker3;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.firebase.ui.auth.AuthUI;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseUser;
+
+import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.Objects;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -52,12 +66,52 @@ public class SettingsFragment extends Fragment {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_settings, container, false);
+
+        View view = inflater.inflate(R.layout.fragment_settings, container, false);
+
+        // button for logout and initialing our button.
+        //Button logoutBtn = findViewById(R.id.idBtnLogout);
+        Button logoutBtn = view.findViewById(R.id.idBtnLogout);
+
+        // adding onclick listener for our logout button.
+        logoutBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                // below line is for getting instance
+                // for AuthUi and after that calling a
+                // sign out method from FIrebase.
+                AuthUI.getInstance()
+                        //.signOut(HomeActivity.this)
+                        .signOut(Objects.requireNonNull(getActivity()))
+
+                        // after sign out is executed we are redirecting
+                        // our user to MainActivity where our login flow is being displayed.
+                        .addOnCompleteListener(new OnCompleteListener<Void>() {
+                            public void onComplete(@NonNull Task<Void> task) {
+
+                                // below method is used after logout from device.
+                                //Toast.makeText(HomeActivity.this, "User Signed Out", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(Objects.requireNonNull(getActivity()), "User Signed Out", Toast.LENGTH_SHORT).show();
+
+                                // below line is to go to MainActivity via an intent.
+                                //Intent i = new Intent(HomeActivity.this, MainActivity.class);
+                                Intent i = new Intent(Objects.requireNonNull(getActivity()), MainActivity.class);
+                                startActivity(i);
+                            }
+                        });
+
+            }
+
+        });
+
+        return view;
     }
 }
