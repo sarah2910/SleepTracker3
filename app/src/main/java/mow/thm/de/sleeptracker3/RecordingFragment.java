@@ -59,6 +59,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private Sensor mySensor;
     private SensorManager SM;
     Timer timer;
+    long start;
+    long end;
+    long delta;
     ArrayList<Float> movementDataX;
     ArrayList<Float> movementDataY;
     ArrayList<Float> movementDataZ;
@@ -164,6 +167,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View view) {
 
+                start = System.currentTimeMillis();
+
                 movementDataX.clear();
                 movementDataY.clear();
                 movementDataZ.clear();
@@ -174,9 +179,15 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 startSensorBtn.setEnabled(false);
                 createSensor();
 
+
                 timer.schedule(new TimerTask() {
                     @Override
                     public void run() {
+                        System.out.println("TEEEEEESSSSST");
+
+                        end = System.currentTimeMillis();
+                        delta = end - start;
+
                         float x = 0;
                         float y = 0;
                         float z = 0;
@@ -207,6 +218,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
                         System.out.println("Im Mittel alle 3 Sekunden auf der Y Achse: " + y);
                         System.out.println("Im Mittel alle 3 Sekunden auf der Z Achse: " + z);
+                        System.out.println("Abgelaufene Zeit in ms: " + delta/1000);
 
                         movementDataX.clear();
                         movementDataY.clear();
