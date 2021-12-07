@@ -17,13 +17,21 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -57,6 +65,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private static final String LOG_TAG = "AudioRecording";
     private static String mFileName = null;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
+
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    MovementInfo movementInfo;
 
     public RecordingFragment() {
         // Required empty public constructor
@@ -143,6 +155,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             }
         });
 
+        firebaseDatabase = FirebaseDatabase.getInstance();
+        databaseReference = firebaseDatabase.getReference("MovementInfo");
+        movementInfo = new MovementInfo();
+
+        // sendDatabtn = startSensorBtn --> Daten sollen in DB gespeichert werden
         startSensorBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -181,6 +198,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                         x = x%movementDataX.size();
                         y = y%movementDataY.size();
                         z = z%movementDataZ.size();
+
+                        // In Firebase speichern: TODO: Prüfen, ob Werte null sind
+                        if(x>0 && y>0 && z>0)
+                            addDataToFirebase(x, y, z);
 
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -221,6 +242,25 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
 
         return rootView;
+    }
+
+    private void addDataToFirebase(float x, float y, float z) {
+        movementInfo.setX(x);
+        movementInfo.setY(y);
+        movementInfo.setZ(z);
+
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                databaseReference.setValue(movementInfo);
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
