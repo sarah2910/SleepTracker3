@@ -1,6 +1,5 @@
 package mow.thm.de.sleeptracker3;
 
-import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -18,10 +17,12 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -39,6 +40,9 @@ import java.util.TimerTask;
 
 import static android.Manifest.permission.RECORD_AUDIO;
 import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+
+import com.google.firebase.auth.FirebaseUser;
+
 
 /**
  * A simple {@link Fragment} subclass.
@@ -75,6 +79,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     DatabaseReference databaseReference;
     MovementInfo movementInfo;
 
+
     public RecordingFragment() {
         // Required empty public constructor
     }
@@ -110,6 +115,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         movementDataX = new ArrayList<Float>();
         movementDataY = new ArrayList<Float>();
         movementDataZ = new ArrayList<Float>();
+
     }
 
     @Override
@@ -268,11 +274,24 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 //                databaseReference.setValue(movementInfo);
+
+                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+                assert currentFirebaseUser != null;
+                String userChild = currentFirebaseUser.getUid();
+
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
-                String tableChild = "" + formatter.format(date);
-                databaseReference.child(tableChild).setValue(movementInfo);
-                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+                String dateChild = "" + formatter.format(date);
+                if(!userChild.isEmpty())
+                {
+                    databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
+                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+                }
+                else {
+                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
+                }
+
+
             }
 
             @Override
