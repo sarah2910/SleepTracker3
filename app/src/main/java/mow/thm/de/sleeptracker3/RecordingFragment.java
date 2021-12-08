@@ -212,7 +212,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                         // In Firebase speichern: TODO: Prüfen, ob Werte null sind
                         if(x>0 && y>0 && z>0)
-                            addDataToFirebase(x, y, z);
+                            addDataToFirebase(x, y, z, delta);
 
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -256,10 +256,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         return rootView;
     }
 
-    private void addDataToFirebase(float x, float y, float z) {
+    private void addDataToFirebase(float x, float y, float z, long delta) {
         movementInfo.setX(x);
         movementInfo.setY(y);
         movementInfo.setZ(z);
+        movementInfo.setDelta(delta);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
