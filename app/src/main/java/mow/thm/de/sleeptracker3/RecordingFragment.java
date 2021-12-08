@@ -210,9 +210,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                         y = y%movementDataY.size();
                         z = z%movementDataZ.size();
 
-                        // In Firebase speichern: TODO: Prüfen, ob Werte null sind
-                        if(x>0 && y>0 && z>0)
-                            addDataToFirebase(x, y, z, delta);
+                        // In Firebase speichern
+                        if(x>0 && y>0 && z>0 && delta>0)
+                            addDataToFirebase(x, y, z/*, delta*/);
 
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -256,16 +256,17 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         return rootView;
     }
 
-    private void addDataToFirebase(float x, float y, float z, long delta) {
+    private void addDataToFirebase(float x, float y, float z/*, long delta*/) {
         movementInfo.setX(x);
         movementInfo.setY(y);
         movementInfo.setZ(z);
-        movementInfo.setDelta(delta);
+        //movementInfo.setDelta(delta);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                databaseReference.setValue(movementInfo);
+//                databaseReference.setValue(movementInfo);
+                databaseReference.child(delta+"").setValue(movementInfo);
                 Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
             }
 

@@ -8,7 +8,7 @@ public class MovementInfo {
     private float z;
 
     // Relativ vergangener Zeitraum:
-    private long delta;
+//    private long delta;
 
     public float getX() {
         return x;
@@ -20,9 +20,9 @@ public class MovementInfo {
         return z;
     }
 
-    public long getDelta() {
-        return delta;
-    }
+//    public long getDelta() {
+//        return delta;
+//    }
 
     public void setX(float x) {
         this.x = x;
@@ -34,8 +34,8 @@ public class MovementInfo {
         this.z = z;
     }
 
-    public void setDelta(long delta) {
-        this.delta = delta;
-    }
+//    public void setDelta(long delta) {
+//        this.delta = delta;
+//    }
 
 }
