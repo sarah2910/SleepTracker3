@@ -30,7 +30,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -266,7 +268,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 //                databaseReference.setValue(movementInfo);
-                databaseReference.child(delta+"").setValue(movementInfo);
+                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                Date date = new Date();
+                String tableChild = "" + formatter.format(date);
+                databaseReference.child(tableChild).setValue(movementInfo);
                 Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
             }
 
