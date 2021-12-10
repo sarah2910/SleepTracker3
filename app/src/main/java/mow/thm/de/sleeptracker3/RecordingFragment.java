@@ -75,6 +75,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private static String mFileName = null;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
 
+    //SW:
+    boolean testSendData = true;
+
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     MovementInfo movementInfo;
@@ -175,6 +178,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View view) {
 
+                //SW:
+                testSendData = true;
+
                 start = System.currentTimeMillis();
 
                 movementDataX.clear();
@@ -256,6 +262,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 timer.cancel();
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
+
+                //SW:
+                testSendData = false;
+
                 onPause();
             }
         });
@@ -282,9 +292,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();
                 String dateChild = "" + formatter.format(date);
-                if(!userChild.isEmpty())
+                String newDateChild = dateChild.replace("/", "-"); // Kein "/" nutzen! Daraus macht Firebase eine neue Verzweigung
+
+                if(!userChild.isEmpty() && testSendData) //TODO: testSendData soll sicherstellen, dass Daten nach "Stop" nicht mehr gesendet werden, funktioniert aber noch nicht
                 {
-                    databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
+                    databaseReference.child(userChild+"").child(newDateChild).setValue(movementInfo);
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                 }
                 else {
