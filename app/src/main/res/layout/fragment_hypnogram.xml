@@ -9,6 +9,7 @@
 
 
     <TextView
+        android:id="@+id/textView2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hypnogram"
@@ -17,7 +18,60 @@
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.109" />
+
+    <com.jjoe64.graphview.GraphView
+        android:id="@+id/testGraph"
+        android:layout_width="341sp"
+        android:layout_height="289sp"
+        android:background="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView2"
+        app:layout_constraintVertical_bias="0.137" />
+
+    <EditText
+        android:id="@+id/editText"
+        android:layout_width="226sp"
+        android:layout_height="46sp"
+        android:backgroundTint="#FFFFFF"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.189"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/testGraph"
+        app:layout_constraintVertical_bias="0.602" />
+
+    <EditText
+        android:id="@+id/editText2"
+        android:layout_width="226sp"
+        android:layout_height="46sp"
+        android:backgroundTint="#FFFFFF"
+        android:textColor="#FFFFFF"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.189"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/testGraph"
+        app:layout_constraintVertical_bias="0.702" />
+
+    <Button
+        android:id="@+id/graphBtn"
+        android:layout_width="126sp"
+        android:layout_height="46sp"
+        android:text="X- und Y-Werte hinzufügen"
+        android:textColor="@color/white"
+        android:textSize="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/testGraph"
+        app:layout_constraintVertical_bias="0.850" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
