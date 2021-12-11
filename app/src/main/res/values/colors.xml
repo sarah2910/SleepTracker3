@@ -17,4 +17,5 @@
     <color name="button_text">#FFFFFFFF</color>
 
     <color name="active_el">#FFF173</color>
+    <color name="statusbar">#FF000000</color>
 </resources>

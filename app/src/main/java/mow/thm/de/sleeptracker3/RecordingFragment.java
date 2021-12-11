@@ -80,9 +80,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private static String mFileName = null;
     public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
 
-    //SW:
-    boolean testSendData = true;
-
     FirebaseDatabase firebaseDatabase;
     DatabaseReference databaseReference;
     MovementInfo movementInfo;
@@ -183,9 +180,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View view) {
 
-                //SW:
-                testSendData = true;
-
                 start = System.currentTimeMillis();
 
                 movementDataX.clear();
@@ -268,9 +262,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
 
-                //SW:
-                testSendData = false;
-
                 onPause();
             }
         });
@@ -289,7 +280,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                databaseReference.setValue(movementInfo);
 
                 FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
                 assert currentFirebaseUser != null;
@@ -299,7 +289,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
                 String dateChild = now.format(dateTimeFormatter);
 
-                if(!userChild.isEmpty() && testSendData) //TODO: testSendData soll sicherstellen, dass Daten nach "Stop" nicht mehr gesendet werden, funktioniert aber noch nicht
+                if(!userChild.isEmpty())
                 {
                     databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
@@ -307,7 +297,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 else {
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
                 }
-
 
             }
 
