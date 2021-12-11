@@ -38,16 +38,16 @@ public class MainActivity extends AppCompatActivity {
     // display inside our app.
     List<AuthUI.IdpConfig> providers = Collections.singletonList(
 
-            // below is the line for adding
-            // email and password authentication.
-            new AuthUI.IdpConfig.EmailBuilder().build());
+        // below is the line for adding
+        // email and password authentication.
+        new AuthUI.IdpConfig.EmailBuilder().build());
 
-            // below line is used for adding google
-            // authentication builder in our app.
+        // below line is used for adding google
+        // authentication builder in our app.
 //            new AuthUI.IdpConfig.GoogleBuilder().build(),
 
-            // below line is used for adding phone
-            // authentication builder in our app.
+        // below line is used for adding phone
+        // authentication builder in our app.
 //            new AuthUI.IdpConfig.PhoneBuilder().build());
 
     @Override
@@ -107,7 +107,10 @@ public class MainActivity extends AppCompatActivity {
                                 // below line is for customizing our theme for
                                 // login screen and set logo method is used for
                                 // adding logo for our login page.
-                                //.setLogo(R.drawable.gfgimage).setTheme(R.style.Theme)
+//                                .setLogo(R.drawable.gfgimage)
+//                                .setTheme(R.style.Theme)
+//                                .setTheme(R.style.CardView_Dark)
+                                .setTheme(R.style.Theme_SleepTracker3)
 
                                 // after setting our theme and logo
                                 // we are calling a build() method

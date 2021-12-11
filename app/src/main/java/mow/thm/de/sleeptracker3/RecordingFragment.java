@@ -287,7 +287,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                 FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
                 assert currentFirebaseUser != null;
-                String userChild = currentFirebaseUser.getUid();
+                String userChild = currentFirebaseUser.getUid()+"";
 
                 SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
                 Date date = new Date();

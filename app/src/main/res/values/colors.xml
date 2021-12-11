@@ -13,5 +13,8 @@
     <color name="background_end">#000000</color>
     <color name="bottom_nav">#303030</color>
 
+    <color name="button_background">#4C2F8F</color>
+    <color name="button_text">#FFFFFFFF</color>
 
+    <color name="active_el">#FFF173</color>
 </resources>
