@@ -7,6 +7,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -17,6 +18,7 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
@@ -32,6 +34,9 @@ import com.google.firebase.database.ValueEventListener;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
@@ -281,6 +286,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         //movementInfo.setDelta(delta);
 
         databaseReference.addValueEventListener(new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 //                databaseReference.setValue(movementInfo);
@@ -289,14 +295,13 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 assert currentFirebaseUser != null;
                 String userChild = currentFirebaseUser.getUid()+"";
 
-                SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                Date date = new Date();
-                String dateChild = "" + formatter.format(date);
-                String newDateChild = dateChild.replace("/", "-"); // Kein "/" nutzen! Daraus macht Firebase eine neue Verzweigung
+                LocalDateTime now = LocalDateTime.now();
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
+                String dateChild = now.format(dateTimeFormatter);
 
                 if(!userChild.isEmpty() && testSendData) //TODO: testSendData soll sicherstellen, dass Daten nach "Stop" nicht mehr gesendet werden, funktioniert aber noch nicht
                 {
-                    databaseReference.child(userChild+"").child(newDateChild).setValue(movementInfo);
+                    databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                 }
                 else {
