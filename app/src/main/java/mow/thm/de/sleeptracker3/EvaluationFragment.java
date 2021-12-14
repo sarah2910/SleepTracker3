@@ -1,11 +1,37 @@
 package mow.thm.de.sleeptracker3;
 
+import android.hardware.Sensor;
+import android.media.MediaRecorder;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +48,11 @@ public class EvaluationFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+
+    private Button btnShowData;
+    private String textStartingTime;
+    private String textEndingTime;
+
 
     public EvaluationFragment() {
         // Required empty public constructor
@@ -58,6 +89,70 @@ public class EvaluationFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_evaluation, container, false);
+
+        View rootView = inflater.inflate(R.layout.fragment_evaluation, container, false);
+
+        btnShowData = (Button)rootView.findViewById(R.id.btnShowData);
+        TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
+        TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
+
+        btnShowData.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+
+                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+                assert currentFirebaseUser != null;
+                String userChild = currentFirebaseUser.getUid()+"";
+
+                DatabaseReference databaseReference = database.getReference("MovementTime");
+                DatabaseReference startingTime = databaseReference.child(userChild).child("startingTime");
+                DatabaseReference endingTime = databaseReference.child(userChild).child("endingTime");
+
+                startingTime.addValueEventListener(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String start = snapshot.getValue(String.class);
+                        System.out.println("start: " + start);
+                        textStartingTime = start;
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                endingTime.addValueEventListener(new ValueEventListener() {
+
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String end = snapshot.getValue(String.class);
+                        System.out.println("end: " + end);
+                        textEndingTime = end;
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+                if (textStartingTime != null) {
+                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
+                } else {
+                    textViewStartingTime.setText("Starting Time: EMPTY");
+                }
+
+                if (textEndingTime != null) {
+                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
+                } else {
+                    textViewEndingTime.setText("Ending Time: EMPTY");
+                }
+            }
+        });
+
+        return rootView;
     }
 }

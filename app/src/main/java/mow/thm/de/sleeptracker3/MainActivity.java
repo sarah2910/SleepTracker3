@@ -59,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
         // for our firebase auth
         mFirebaseAuth = FirebaseAuth.getInstance();
 
+
         // below line is used for calling auth listener
         // for oue Firebase authentication.
         mAuthStateListner = firebaseAuth -> {
@@ -71,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
             // checking if the user
             // is null or not.
             if (user != null) {
+
                 // if the user is already authenticated then we will
                 // redirect our user to next screen which is our home screen.
                 // we are redirecting to new screen via an intent.
@@ -107,7 +109,7 @@ public class MainActivity extends AppCompatActivity {
                                 // below line is for customizing our theme for
                                 // login screen and set logo method is used for
                                 // adding logo for our login page.
-//                                .setLogo(R.drawable.gfgimage)
+                               .setLogo(R.mipmap.ic_logo_foreground) // TODO
 //                                .setTheme(R.style.Theme)
 //                                .setTheme(R.style.CardView_Dark)
                                 .setTheme(R.style.Theme_SleepTracker3)
