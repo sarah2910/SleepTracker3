@@ -213,20 +213,20 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                         onPause();
 
                         for (int i = 0; i < movementDataX.size(); i++) {
-                            x += Math.abs(movementDataX.get(i));
+                            x += movementDataX.get(i);
                         }
 
                         for (int i = 0; i < movementDataY.size(); i++) {
-                            y += Math.abs(movementDataY.get(i));
+                            y += movementDataY.get(i);
                         }
 
                         for (int i = 0; i < movementDataZ.size(); i++) {
-                            z += Math.abs(movementDataZ.get(i));
+                            z += movementDataZ.get(i);
                         }
 
-                        x = x%movementDataX.size();
-                        y = y%movementDataY.size();
-                        z = z%movementDataZ.size();
+                        x = x/movementDataX.size();
+                        y = y/movementDataY.size();
+                        z = z/movementDataZ.size();
 
                         // In Firebase speichern
                         if(x>0 && y>0 && z>0 /*&& delta>0*/)
