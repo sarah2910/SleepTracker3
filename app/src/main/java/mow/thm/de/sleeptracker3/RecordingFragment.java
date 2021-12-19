@@ -1,5 +1,6 @@
 package mow.thm.de.sleeptracker3;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -10,6 +11,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.PowerManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -65,6 +67,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private Sensor mySensor;
     private SensorManager SM;
     Timer timer;
+    PowerManager mgr;
+    PowerManager.WakeLock wakeLock;
     long start;
     long end;
     long delta;
@@ -111,6 +115,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
+
+        mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
+        wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
+
 
         SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
         mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -179,6 +187,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+
+
+                wakeLock.acquire();
 
                 start = System.currentTimeMillis();
 
@@ -264,6 +275,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
+                wakeLock.release();
                 timer.cancel();
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
