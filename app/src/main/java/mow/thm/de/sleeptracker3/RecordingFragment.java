@@ -302,7 +302,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 if(!userChild.isEmpty())
                 {
                     databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
-                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
@@ -334,7 +334,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 if(!userChild.isEmpty())
                 {
                     databaseReferenceTime.child(userChild+"").setValue(movementTime);
-                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
@@ -363,7 +363,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     if(!userChild.isEmpty())
                     {
                         databaseReferenceTime.child(userChild+"").setValue(movementTime);
-                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+                        //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                     }
                     else {
                         Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
