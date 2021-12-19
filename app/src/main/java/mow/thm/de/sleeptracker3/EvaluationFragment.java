@@ -49,7 +49,7 @@ public class EvaluationFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private Button btnShowData;
+//    private Button btnShowData;
     private String textStartingTime;
     private String textEndingTime;
 
@@ -92,13 +92,13 @@ public class EvaluationFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_evaluation, container, false);
 
-        btnShowData = (Button)rootView.findViewById(R.id.btnShowData);
+//        btnShowData = (Button)rootView.findViewById(R.id.btnShowData);
         TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
 
-        btnShowData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+//        btnShowData.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
 
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
@@ -117,6 +117,12 @@ public class EvaluationFragment extends Fragment {
                         String start = snapshot.getValue(String.class);
                         System.out.println("start: " + start);
                         textStartingTime = start;
+
+                        if (textStartingTime != null) {
+                            textViewStartingTime.setText("Starting Time: "+textStartingTime);
+                        } else {
+                            textViewStartingTime.setText("Starting Time: EMPTY");
+                        }
                     }
 
                     @Override
@@ -131,6 +137,12 @@ public class EvaluationFragment extends Fragment {
                         String end = snapshot.getValue(String.class);
                         System.out.println("end: " + end);
                         textEndingTime = end;
+
+                        if (textEndingTime != null) {
+                            textViewEndingTime.setText("Ending Time: "+textEndingTime);
+                        } else {
+                            textViewEndingTime.setText("Ending Time: EMPTY");
+                        }
                     }
 
                     @Override
@@ -139,19 +151,19 @@ public class EvaluationFragment extends Fragment {
                     }
                 });
 
-                if (textStartingTime != null) {
-                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
-                } else {
-                    textViewStartingTime.setText("Starting Time: EMPTY");
-                }
+//                if (textStartingTime != null) {
+//                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
+//                } else {
+//                    textViewStartingTime.setText("Starting Time: EMPTY");
+//                }
 
-                if (textEndingTime != null) {
-                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
-                } else {
-                    textViewEndingTime.setText("Ending Time: EMPTY");
-                }
-            }
-        });
+//                if (textEndingTime != null) {
+//                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
+//                } else {
+//                    textViewEndingTime.setText("Ending Time: EMPTY");
+//                }
+//            }
+//        });
 
         return rootView;
     }
