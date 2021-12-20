@@ -116,8 +116,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             mParam2 = getArguments().getString(ARG_PARAM2);
         }
 
-        mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
-        wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
+        //mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
+        //wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
 
 
         SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
@@ -189,7 +189,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             public void onClick(View view) {
 
 
-                wakeLock.acquire();
+                //wakeLock.acquire();
 
                 start = System.currentTimeMillis();
 
@@ -275,7 +275,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-                wakeLock.release();
+                //wakeLock.release();
                 timer.cancel();
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
