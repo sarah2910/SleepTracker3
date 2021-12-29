@@ -72,6 +72,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     long start;
     long end;
     long delta;
+
     ArrayList<Float> movementDataX;
     ArrayList<Float> movementDataY;
     ArrayList<Float> movementDataZ;
@@ -111,20 +112,23 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+        if (savedInstanceState == null) {
+            mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
+            wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
+
+
+            SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
+            mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            movementDataX = new ArrayList<Float>();
+            movementDataY = new ArrayList<Float>();
+            movementDataZ = new ArrayList<Float>();
+        } else {
+           // System.out.println("HALLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO " + savedInstanceState.getBoolean("startSensorBtnState"));
+           // startSensorBtn.setEnabled(savedInstanceState.getBoolean("startSensorBtnState"));
+
         }
 
-        //mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
-        //wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
 
-
-        SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-        mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        movementDataX = new ArrayList<Float>();
-        movementDataY = new ArrayList<Float>();
-        movementDataZ = new ArrayList<Float>();
 
     }
 
@@ -140,6 +144,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         stopSensorBtn = (Button)rootView.findViewById(R.id.btnSensorStop);
         stopbtn.setEnabled(false);
         stopSensorBtn.setEnabled(false);
+
 
         String path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/MyFolder/";
         File dir = new File(path);
@@ -188,8 +193,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @Override
             public void onClick(View view) {
 
-
-                //wakeLock.acquire();
+                wakeLock.acquire();
 
                 start = System.currentTimeMillis();
 
@@ -275,7 +279,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
-                //wakeLock.release();
+                if (wakeLock.isHeld())
+                    wakeLock.release();
                 timer.cancel();
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
@@ -290,6 +295,12 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         });
 
         return rootView;
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("startSensorBtnState", startSensorBtn.isEnabled());
     }
 
     private void addDataToFirebase(float x, float y, float z/*, long delta*/) {
