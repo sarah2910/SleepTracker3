@@ -1,6 +1,5 @@
 package mow.thm.de.sleeptracker3;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.hardware.Sensor;
@@ -85,6 +84,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     DatabaseReference databaseReferenceTime;
     MovementInfo movementInfo;
     MovementTime movementTime;
+
+    private boolean recording = false;
 
 
     public RecordingFragment() {
@@ -195,6 +196,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                 wakeLock.acquire();
 
+                recording = true;
+
                 start = System.currentTimeMillis();
 
                 movementDataX.clear();
@@ -245,7 +248,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                         // In Firebase speichern
                         if(x>0 && y>0 && z>0 /*&& delta>0*/)
+                        {
                             addDataToFirebase(x, y, z/*, delta*/);
+                            System.out.println("ADD DATA TO FIREBASE");
+                        }
 
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -267,6 +273,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         stopbtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                recording = false;
                 stopbtn.setEnabled(false);
                 startbtn.setEnabled(true);
                 recorder.stop();
@@ -303,16 +310,46 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         outState.putBoolean("startSensorBtnState", startSensorBtn.isEnabled());
     }
 
+    //TODO: Folgende Funktion stoppt das Recording bei Fragment Wechsel erfolgreich
+//    @RequiresApi(api = Build.VERSION_CODES.O)
+//    @Override
+//    public void onDestroyView() {
+//
+//        super.onDestroyView();
+//        System.out.println("ONDESTROYVIEW");
+//        if(stopSensorBtn.isEnabled())
+//        {
+//            timer.cancel();
+//            stopSensorBtn.setEnabled(false);
+//            startSensorBtn.setEnabled(true);
+//
+//            LocalDateTime now = LocalDateTime.now();
+//            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
+//            String endString = now.format(dateTimeFormatter);
+//            addEndTimeDataToFirebase(endString);
+//
+//            onPause();
+//        }
+//    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void addDataToFirebase(float x, float y, float z/*, long delta*/) {
-        movementInfo.setX(x);
-        movementInfo.setY(y);
-        movementInfo.setZ(z);
+        MovementInfo movementInfo = new MovementInfo(x, y, z);
+//        movementInfo.setX(x);
+//        movementInfo.setY(y);
+//        movementInfo.setZ(z);
         //movementInfo.setDelta(delta);
 
-        databaseReference.addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+        String referenceStr = "MovementInfo/"+(FirebaseAuth.getInstance().getCurrentUser().getUid()+"");
+        DatabaseReference databaseReferenceInfo = firebaseDatabase.getReference(referenceStr);
+
+        System.out.println("DATABASEREFERENCEINFO: " + referenceStr);
+
+//        databaseReferenceInfo.addValueEventListener(new ValueEventListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.O)
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
                 assert currentFirebaseUser != null;
@@ -322,22 +359,26 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
                 String dateChild = now.format(dateTimeFormatter);
 
-                if(!userChild.isEmpty())
+                if(!userChild.isEmpty() && recording)
                 {
+                    // databaseReference = firebaseDatabase.getReference("MovementInfo");
+
                     databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
+//                    System.out.println("HINZUGEFÜGT!");
+//                    return;
                     //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
                 }
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
-            }
-        });
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
     }
 
@@ -345,59 +386,66 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
         movementTime.setStartingTime(startingTime);
 
-        databaseReferenceTime.addValueEventListener(new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.O)
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+        String referenceStr = "MovementTime/"+(FirebaseAuth.getInstance().getCurrentUser().getUid()+"");
+        //DatabaseReference databaseReference2 = firebaseDatabase.getReference(referenceStr);
+        System.out.println("databaseReference2: " + referenceStr);
 
-                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                assert currentFirebaseUser != null;
-                String userChild = currentFirebaseUser.getUid()+"";
+//        databaseReference2.addValueEventListener(new ValueEventListener() {
+//            @RequiresApi(api = Build.VERSION_CODES.O)
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if(!userChild.isEmpty())
-                {
-                    databaseReferenceTime.child(userChild+"").setValue(movementTime);
-                    //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
-                }
-            }
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        assert currentFirebaseUser != null;
+        String userChild = currentFirebaseUser.getUid()+"";
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
-            }
-        });
+        if(!userChild.isEmpty())
+        {
+            databaseReferenceTime.child(userChild+"").setValue(movementTime);
+            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "startTimeData added", Toast.LENGTH_SHORT).show();
+        }
+        else {
+            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
+        }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
+//            }
+//        });
     }
      public void addEndTimeDataToFirebase(String endingTime) {
 
             movementTime.setEndingTime(endingTime);
 
-            databaseReferenceTime.addValueEventListener(new ValueEventListener() {
-                @RequiresApi(api = Build.VERSION_CODES.O)
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
+             String referenceStr = "MovementTime/"+(FirebaseAuth.getInstance().getCurrentUser().getUid()+"");
+             DatabaseReference databaseReference2 = firebaseDatabase.getReference(referenceStr);
 
-                    FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                    assert currentFirebaseUser != null;
-                    String userChild = currentFirebaseUser.getUid()+"";
+//             databaseReference2.addValueEventListener(new ValueEventListener() {
+//                @RequiresApi(api = Build.VERSION_CODES.O)
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                    if(!userChild.isEmpty())
-                    {
-                        databaseReferenceTime.child(userChild+"").setValue(movementTime);
-                        //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
-                    }
-                }
+            FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+            assert currentFirebaseUser != null;
+            String userChild = currentFirebaseUser.getUid()+"";
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
-                }
-            });
+            if(!userChild.isEmpty())
+            {
+                databaseReferenceTime.child(userChild+"").setValue(movementTime);
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "endTimeData added", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
+            }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Fail to add data", Toast.LENGTH_SHORT).show();
+//                }
+//            });
         }
 
     @Override

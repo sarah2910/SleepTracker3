@@ -1,19 +1,29 @@
 package mow.thm.de.sleeptracker3;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.MenuItem;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.firebase.ui.auth.AuthUI;
+import com.firebase.ui.auth.FirebaseAuthUIActivityResultContract;
+import com.firebase.ui.auth.IdpResponse;
+import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,32 +43,46 @@ public class MainActivity extends AppCompatActivity {
     // creating an auth listener for our Firebase auth
     private FirebaseAuth.AuthStateListener mAuthStateListner;
 
-    // below is the list which we have created in which
-    // we can add the authentication which we have to
-    // display inside our app.
     List<AuthUI.IdpConfig> providers = Collections.singletonList(
+            new AuthUI.IdpConfig.EmailBuilder().build());
 
-        // below is the line for adding
-        // email and password authentication.
-        new AuthUI.IdpConfig.EmailBuilder().build());
+    ActivityResultLauncher<Intent> signInLauncher = registerForActivityResult(
 
-        // below line is used for adding google
-        // authentication builder in our app.
-//            new AuthUI.IdpConfig.GoogleBuilder().build(),
+            new FirebaseAuthUIActivityResultContract(),
+            new ActivityResultCallback<FirebaseAuthUIAuthenticationResult>() {
+                @Override
+                public void onActivityResult(FirebaseAuthUIAuthenticationResult result) {
+                    onSignInResult(result);
+                }
+            }
+    );
 
-        // below line is used for adding phone
-        // authentication builder in our app.
-//            new AuthUI.IdpConfig.PhoneBuilder().build());
+    private void onSignInResult(FirebaseAuthUIAuthenticationResult result) {
+        IdpResponse response = result.getIdpResponse();
+        if (result.getResultCode() == RESULT_OK) {
+            // Successfully signed in
+            FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+            String uid  = user.getUid();
+            // ...
+            Intent i = new Intent(MainActivity.this, HomeActivity.class);
+            startActivity(i);
+        } else {
+            // Sign in failed. If response is null the user canceled the
+            // sign-in flow using the back button. Otherwise check
+            // response.getError().getErrorCode() and handle the error.
+            // ...
+        }
+    }
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         // below line is for getting instance
         // for our firebase auth
         mFirebaseAuth = FirebaseAuth.getInstance();
-
 
         // below line is used for calling auth listener
         // for oue Firebase authentication.
@@ -78,53 +102,26 @@ public class MainActivity extends AppCompatActivity {
                 // we are redirecting to new screen via an intent.
                 Intent i = new Intent(MainActivity.this, HomeActivity.class);
                 startActivity(i);
+
+                // TODO TEST
+                String uid  = user.getUid();
+
                 // we are calling finish method to kill or
                 // mainactivity which is displaying our login ui.
                 finish();
             } else {
-                // this method is called when our
-                // user is not authenticated previously.
-                //TODO: Deprecated --> Siehe https://developer.android.com/training/basics/intents/result
-                startActivityForResult(
-                        // below line is used for getting
-                        // our authentication instance.
-                        AuthUI.getInstance()
-                                // below line is used to
-                                // create our sign in intent
-                                .createSignInIntentBuilder()
 
-                                // below line is used for adding smart
-                                // lock for our authentication.
-                                // smart lock is used to check if the user
-                                // is authentication through different devices.
-                                // currently we are disabling it.
-                                .setIsSmartLockEnabled(false)
-
-                                // we are adding different login providers which
-                                // we have mentioned above in our list.
-                                // we can add more providers according to our
-                                // requirement which are available in firebase.
-                                .setAvailableProviders(providers)
-
-                                // below line is for customizing our theme for
-                                // login screen and set logo method is used for
-                                // adding logo for our login page.
-                               .setLogo(R.mipmap.ic_logo_foreground) // TODO
-//                                .setTheme(R.style.Theme)
-//                                .setTheme(R.style.CardView_Dark)
-                                .setTheme(R.style.Theme_SleepTracker3)
-
-                                // after setting our theme and logo
-                                // we are calling a build() method
-                                // to build our login screen.
-                                .build(),
-                        // and lastly we are passing our const
-                        // integer which is declared above.
-                        RC_SIGN_IN
-                );
+                // Create and launch sign-in intent
+                Intent signInIntent = AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setIsSmartLockEnabled(false)
+                        .setAvailableProviders(providers)
+                        .setLogo(R.mipmap.ic_logo_foreground)
+                        .setTheme(R.style.Theme_SleepTracker3)
+                        .build();
+                signInLauncher.launch(signInIntent);
             }
         };
-
     }
 
     @Override

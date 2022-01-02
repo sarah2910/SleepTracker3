@@ -7,6 +7,14 @@ public class MovementTime {
     private String startingTime;
     private String endingTime;
 
+    public MovementTime() {
+        // Default constructor
+    }
+
+    public MovementTime(String startingTime, String endingTime) {
+        this.startingTime = startingTime;
+        this.endingTime = endingTime;
+    }
 
     public String getStartingTime() { return startingTime; }
     public String getEndingTime() { return endingTime; }

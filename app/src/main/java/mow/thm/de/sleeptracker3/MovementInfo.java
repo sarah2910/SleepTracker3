@@ -7,6 +7,15 @@ public class MovementInfo {
     private float y;
     private float z;
 
+    public MovementInfo() {
+        // Default constructor
+    }
+
+    public MovementInfo(float x, float y, float z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
 
     public float getX() {
         return x;
