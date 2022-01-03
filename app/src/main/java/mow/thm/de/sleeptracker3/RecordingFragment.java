@@ -247,7 +247,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                         z = z/movementDataZ.size();
 
                         // In Firebase speichern
-                        if(x>0 && y>0 && z>0 /*&& delta>0*/)
+                        if(!Float.isNaN(x) && !Float.isNaN(y) && !Float.isNaN(z))
                         {
                             addDataToFirebase(x, y, z/*, delta*/);
                             System.out.println("ADD DATA TO FIREBASE");
@@ -478,6 +478,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     @Override
     public void onSensorChanged(SensorEvent event) {
 
+        //System.out.println("ONSENSORCHANGED");
         movementDataX.add(event.values[0]);
         movementDataY.add(event.values[1]);
         movementDataZ.add(event.values[2]);
