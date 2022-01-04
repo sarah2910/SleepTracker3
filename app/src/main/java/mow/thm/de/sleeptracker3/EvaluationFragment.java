@@ -5,6 +5,7 @@ import android.media.MediaRecorder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.renderscript.Sampler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -31,6 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
@@ -55,7 +57,12 @@ public class EvaluationFragment extends Fragment {
 //    private Button btnShowData;
     private String textStartingTime;
     private String textEndingTime;
-    private float durationHrs;
+    private String durationHrs;
+    private String textDurationHrsAvg;
+    private String dateChild = "";
+
+    ArrayList<String> avgTimeList;
+
     float hoursOfSleep;
 
     private Button submitEvaluationBtn;
@@ -64,6 +71,9 @@ public class EvaluationFragment extends Fragment {
     DatabaseReference databaseReference;
     DatabaseReference startingTime;
     DatabaseReference endingTime;
+    DatabaseReference databaseReferenceH;
+    DatabaseReference databaseReferenceHistory;
+    DatabaseReference databaseReferenceAverage;
 
 
     public EvaluationFragment() {
@@ -107,19 +117,17 @@ public class EvaluationFragment extends Fragment {
 //        btnShowData = (Button)rootView.findViewById(R.id.btnShowData);
         TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
-        TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDuration);
+        TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDurationHrs);
+        TextView textViewDurationTimeAvg = (TextView)rootView.findViewById(R.id.textDurationAvg);
 
         submitEvaluationBtn = (Button)rootView.findViewById(R.id.submitEvaluation);
-
-//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
-//        DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History");
 
 
         submitEvaluationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                if(textStartingTime != null && textEndingTime != null && !Float.isNaN(durationHrs)) {
+                if(textStartingTime != null && textEndingTime != null) {
                     addEvaluationToFirebase();
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Submitted!", Toast.LENGTH_LONG).show();
                 } else {
@@ -139,8 +147,60 @@ public class EvaluationFragment extends Fragment {
         String userChild = currentFirebaseUser.getUid()+"";
 
         databaseReference = database.getReference("MovementTime");
+        databaseReferenceH = database.getReference("History");
+
         startingTime = databaseReference.child(userChild).child("startingTime");
         endingTime = databaseReference.child(userChild).child("endingTime");
+
+        databaseReferenceHistory = databaseReferenceH.child(userChild).child("Average");
+
+        DatabaseReference databaseReferenceUser = databaseReferenceH.child(userChild);
+
+        databaseReferenceUser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                avgTimeList = new ArrayList<>();
+
+                for(DataSnapshot dsp : snapshot.getChildren()) {
+
+                    Object durationChild = dsp.child("duration").getValue();
+                    if(durationChild != null) {
+                        Object userVal = dsp.getValue();
+//                        System.out.println("!!!!TEST!!!!: " + userVal);
+//                        System.out.println("2. !!!!TEST!!!!: " + dsp.child("duration").getValue());
+                        avgTimeList.add(durationChild.toString());
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        databaseReferenceHistory.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String duration = snapshot.getValue(String.class);
+                System.out.println("AVG: " + duration);
+                textDurationHrsAvg = duration;
+
+                if(textDurationHrsAvg != null) {
+                    textViewDurationTimeAvg.setText("Average Sleeping Time: " + textDurationHrsAvg + " hours!");
+                } else {
+                    textViewDurationTimeAvg.setText("Average Sleeping Time: EMPTY");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         startingTime.addValueEventListener(new ValueEventListener() {
 
@@ -207,6 +267,8 @@ public class EvaluationFragment extends Fragment {
                 Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
             }
         });
+
+
 //                if (textStartingTime != null) {
 //                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
 //                } else {
@@ -228,16 +290,40 @@ public class EvaluationFragment extends Fragment {
         assert currentFirebaseUser != null;
         String userChild = currentFirebaseUser.getUid()+"";
 
-        String dateChild = "";
 
         dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
 
-        durationHrs = hoursOfSleep;
+        durationHrs = hoursOfSleep+"";
+        String durationHrsAvg = calcAvgHrs();
 
         History history = new History(textStartingTime, textEndingTime, durationHrs);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History");
+
+        databaseReferenceHistory.child(userChild+"").child("Average").setValue(durationHrsAvg);
         databaseReferenceHistory.child(userChild+"").child(dateChild).setValue(history);
+
+    }
+
+    public String calcAvgHrs() {
+
+        float res = 0;
+
+        if(avgTimeList.isEmpty()) {
+            return "";
+
+        } else {
+            float tmp = 0;
+            for(int i=0; i<avgTimeList.size(); i++) {
+                tmp = Float.parseFloat(avgTimeList.get(i));
+//                System.out.println("avgTimeList: "+avgTimeList.get(i)+" - tmp: " + tmp);
+                res += tmp;
+            }
+            res /= avgTimeList.size();
+        }
+
+//        return durationHrs+"";
+        return res+"";
     }
 }

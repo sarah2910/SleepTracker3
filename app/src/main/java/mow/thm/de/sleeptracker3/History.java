@@ -5,13 +5,12 @@ public class History {
     // Einschlafen & Aufwachen (Nur Uhrzeit o. Uhrzeit + Datum?):
     private String startingTime;
     private String endingTime;
-    private float durationHrs; // Schlafdauer (endingTime minus startingTime):
+    private String durationHrs; // Schlafdauer (endingTime minus startingTime):
 
     public History() {
-
     }
 
-    public History(String startingTime, String endingTime, float durationHrs) {
+    public History(String startingTime, String endingTime, String durationHrs) {
         this.startingTime = startingTime;
         this.endingTime = endingTime;
         this.durationHrs = durationHrs;
@@ -30,7 +29,7 @@ public class History {
         return endingTime;
     }
 
-    public float getDuration() {
+    public String getDuration() {
         return durationHrs;
     }
 
@@ -41,7 +40,7 @@ public class History {
         this.endingTime = endingTime;
     }
 
-    public void setDuration(float durationHrs) {
+    public void setDuration(String durationHrs) {
         this.durationHrs = durationHrs;
     }
 
