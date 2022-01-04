@@ -55,6 +55,15 @@ public class EvaluationFragment extends Fragment {
 //    private Button btnShowData;
     private String textStartingTime;
     private String textEndingTime;
+    private float durationHrs;
+    float hoursOfSleep;
+
+    private Button submitEvaluationBtn;
+
+    //TODO:
+    DatabaseReference databaseReference;
+    DatabaseReference startingTime;
+    DatabaseReference endingTime;
 
 
     public EvaluationFragment() {
@@ -100,84 +109,104 @@ public class EvaluationFragment extends Fragment {
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
         TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDuration);
 
+        submitEvaluationBtn = (Button)rootView.findViewById(R.id.submitEvaluation);
+
+//        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+//        DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History");
+
+
+        submitEvaluationBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(textStartingTime != null && textEndingTime != null && !Float.isNaN(durationHrs)) {
+                    addEvaluationToFirebase();
+                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Submitted!", Toast.LENGTH_LONG).show();
+                } else {
+                    System.out.println("startingTime: " + startingTime + " endingTime: " + endingTime + " durationHrs: " + durationHrs);
+                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Error! Please record Sleeping Time!", Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
 //        btnShowData.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
+        final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
-                final FirebaseDatabase database = FirebaseDatabase.getInstance();
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        assert currentFirebaseUser != null;
+        String userChild = currentFirebaseUser.getUid()+"";
 
-                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                assert currentFirebaseUser != null;
-                String userChild = currentFirebaseUser.getUid()+"";
+        databaseReference = database.getReference("MovementTime");
+        startingTime = databaseReference.child(userChild).child("startingTime");
+        endingTime = databaseReference.child(userChild).child("endingTime");
 
-                DatabaseReference databaseReference = database.getReference("MovementTime");
-                DatabaseReference startingTime = databaseReference.child(userChild).child("startingTime");
-                DatabaseReference endingTime = databaseReference.child(userChild).child("endingTime");
+        startingTime.addValueEventListener(new ValueEventListener() {
 
-                startingTime.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String start = snapshot.getValue(String.class);
+                System.out.println("start: " + start);
+                textStartingTime = start;
 
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String start = snapshot.getValue(String.class);
-                        System.out.println("start: " + start);
-                        textStartingTime = start;
+                if (textStartingTime != null) {
+                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
+                } else {
+                    textViewStartingTime.setText("Starting Time: EMPTY");
+                }
+            }
 
-                        if (textStartingTime != null) {
-                            textViewStartingTime.setText("Starting Time: "+textStartingTime);
-                        } else {
-                            textViewStartingTime.setText("Starting Time: EMPTY");
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+            }
+        });
+        endingTime.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String end = snapshot.getValue(String.class);
+                System.out.println("end: " + end);
+                textEndingTime = end;
+
+                if (textEndingTime != null) {
+                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
+
+                    //TODO:
+                    if(textStartingTime != null) {
+                        String start = (String) textStartingTime;
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        try {
+                            Date d1 = sdf.parse(start);
+                            Date d2 = sdf.parse(end);
+
+                            long diff_ms = d2.getTime() - d1.getTime();
+                            long diff_s = (diff_ms/1000)%60;
+                            long diff_min = (diff_ms / (1000 * 60)) % 60;
+                            long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
+                            textViewDurationTime.setText("You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!");
+
+                            hoursOfSleep = (float) ((float)diff_ms / (1000 * 60))/60;
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
                         }
+
                     }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-                    }
-                });
-                endingTime.addValueEventListener(new ValueEventListener() {
 
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        String end = snapshot.getValue(String.class);
-                        System.out.println("end: " + end);
-                        textEndingTime = end;
+                } else {
+                    textViewEndingTime.setText("Ending Time: EMPTY");
+                }
+            }
 
-                        if (textEndingTime != null) {
-                            textViewEndingTime.setText("Ending Time: "+textEndingTime);
-
-                            //TODO:
-                            if(textStartingTime != null) {
-                                String start = (String) textStartingTime;
-
-                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                                try {
-                                    Date d1 = sdf.parse(start);
-                                    Date d2 = sdf.parse(end);
-
-                                    long diff_ms = d2.getTime() - d1.getTime();
-                                    long diff_s = (diff_ms/1000)%60;
-                                    long diff_min = (diff_ms / (1000 * 60)) % 60;
-                                    long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
-                                    textViewDurationTime.setText("You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!");
-
-                                } catch (ParseException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-
-
-                        } else {
-                            textViewEndingTime.setText("Ending Time: EMPTY");
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-                    }
-                });
-
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+            }
+        });
 //                if (textStartingTime != null) {
 //                    textViewStartingTime.setText("Starting Time: "+textStartingTime);
 //                } else {
@@ -191,7 +220,24 @@ public class EvaluationFragment extends Fragment {
 //                }
 //            }
 //        });
-
         return rootView;
+    }
+
+    public void addEvaluationToFirebase() {
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        assert currentFirebaseUser != null;
+        String userChild = currentFirebaseUser.getUid()+"";
+
+        String dateChild = "";
+
+        dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
+
+        durationHrs = hoursOfSleep;
+
+        History history = new History(textStartingTime, textEndingTime, durationHrs);
+
+        FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+        DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History");
+        databaseReferenceHistory.child(userChild+"").child(dateChild).setValue(history);
     }
 }

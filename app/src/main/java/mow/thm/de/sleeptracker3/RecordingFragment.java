@@ -351,26 +351,26 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 //            @Override
 //            public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
-                assert currentFirebaseUser != null;
-                String userChild = currentFirebaseUser.getUid()+"";
+            FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+            assert currentFirebaseUser != null;
+            String userChild = currentFirebaseUser.getUid()+"";
 
-                LocalDateTime now = LocalDateTime.now();
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
-                String dateChild = now.format(dateTimeFormatter);
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
+            String dateChild = now.format(dateTimeFormatter);
 
-                if(!userChild.isEmpty() && recording)
-                {
-                    // databaseReference = firebaseDatabase.getReference("MovementInfo");
+            if(!userChild.isEmpty() && recording)
+            {
+                // databaseReference = firebaseDatabase.getReference("MovementInfo");
 
-                    databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
+                databaseReference.child(userChild+"").child(dateChild).setValue(movementInfo);
 //                    System.out.println("HINZUGEFÜGT!");
 //                    return;
-                    //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                    Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
-                }
+                //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "data added", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "userChild was empty!", Toast.LENGTH_SHORT).show();
+            }
 
 //            }
 //
