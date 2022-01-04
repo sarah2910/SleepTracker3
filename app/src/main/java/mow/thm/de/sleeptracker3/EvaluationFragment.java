@@ -27,8 +27,11 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -95,6 +98,7 @@ public class EvaluationFragment extends Fragment {
 //        btnShowData = (Button)rootView.findViewById(R.id.btnShowData);
         TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
+        TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDuration);
 
 //        btnShowData.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -140,6 +144,29 @@ public class EvaluationFragment extends Fragment {
 
                         if (textEndingTime != null) {
                             textViewEndingTime.setText("Ending Time: "+textEndingTime);
+
+                            //TODO:
+                            if(textStartingTime != null) {
+                                String start = (String) textStartingTime;
+
+                                SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                                try {
+                                    Date d1 = sdf.parse(start);
+                                    Date d2 = sdf.parse(end);
+
+                                    long diff_ms = d2.getTime() - d1.getTime();
+                                    long diff_s = (diff_ms/1000)%60;
+                                    long diff_min = (diff_ms / (1000 * 60)) % 60;
+                                    long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
+                                    textViewDurationTime.setText("You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!");
+
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+
+                            }
+
+
                         } else {
                             textViewEndingTime.setText("Ending Time: EMPTY");
                         }
