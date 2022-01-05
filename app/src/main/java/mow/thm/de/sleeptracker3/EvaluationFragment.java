@@ -48,6 +48,10 @@ public class EvaluationFragment extends Fragment {
 
     ArrayList<String> avgTimeList;
 
+    private final float minSleep = 8;
+    Boolean moreThanAvg; // ob User mehr oder weniger als durchschnitt geschlafen hat
+    Boolean moreThanMinSleep; // ob User mehr oder weniger als festgelegter Mindestschlaf geschlafen hat
+
     float hoursOfSleep;
 
     private Button submitEvaluationBtn;
@@ -123,7 +127,7 @@ public class EvaluationFragment extends Fragment {
         TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
         TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDurationHrs);
-        TextView textViewDurationTimeAvg = (TextView)rootView.findViewById(R.id.textDurationAvg);
+//        TextView textViewDurationTimeAvg = (TextView)rootView.findViewById(R.id.textDurationAvg);
 
         submitEvaluationBtn = (Button)rootView.findViewById(R.id.submitEvaluation);
 
@@ -173,9 +177,11 @@ public class EvaluationFragment extends Fragment {
                 textDurationHrsAvg = duration;
 
                 if(textDurationHrsAvg != null && !textDurationHrsAvg.isEmpty()) {
-                    textViewDurationTimeAvg.setText("Average Sleeping Time: " + textDurationHrsAvg + " hours!");
+                    String text = "Average Sleeping Time: " + textDurationHrsAvg + " hours!";
+
+//                    textViewDurationTimeAvg.setText(text);
                 } else {
-                    textViewDurationTimeAvg.setText("Average Sleeping Time: EMPTY");
+//                    textViewDurationTimeAvg.setText("Average Sleeping Time: EMPTY");
                 }
             }
             @Override
@@ -227,9 +233,28 @@ public class EvaluationFragment extends Fragment {
                             long diff_s = (diff_ms/1000)%60;
                             long diff_min = (diff_ms / (1000 * 60)) % 60;
                             long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
-                            textViewDurationTime.setText("You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!");
 
                             hoursOfSleep = (float) ((float)diff_ms / (1000 * 60))/60;
+
+                            if(textDurationHrsAvg != null) {
+                                moreThanAvg = hoursOfSleep > Float.parseFloat(textDurationHrsAvg);
+                            }
+
+                            moreThanMinSleep = (hoursOfSleep>minSleep);
+
+                            String text = "You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!";
+
+                            if(moreThanAvg != null && moreThanMinSleep != null) {
+                                text+=" \n\nThis is ";
+                                text+= ((moreThanAvg) ? "more" : "less");
+                                text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
+                                text+= ((moreThanMinSleep) ? "more" : "less");
+                                text+= " than your recommended Sleep (" + minSleep + "h).\n\n";
+                                text+= ((moreThanMinSleep) ? ":)" : ":(");
+                            }
+
+                            textViewDurationTime.setText(text);
+
 
                         } catch (ParseException e) {
                             e.printStackTrace();

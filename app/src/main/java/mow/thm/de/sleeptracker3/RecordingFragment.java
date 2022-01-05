@@ -253,7 +253,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                             System.out.println("ADD DATA TO FIREBASE");
                         }
 
-
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
                         System.out.println("Im Mittel alle 3 Sekunden auf der Y Achse: " + y);
                         System.out.println("Im Mittel alle 3 Sekunden auf der Z Achse: " + z);
