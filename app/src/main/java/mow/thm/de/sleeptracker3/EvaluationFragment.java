@@ -127,7 +127,7 @@ public class EvaluationFragment extends Fragment {
             @Override
             public void onClick(View view) {
 
-                if(textStartingTime != null && textEndingTime != null) {
+                if(textStartingTime != null && textEndingTime != null && !Float.isNaN(hoursOfSleep)) {
                     addEvaluationToFirebase();
                     Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Submitted!", Toast.LENGTH_LONG).show();
                 } else {
@@ -162,17 +162,16 @@ public class EvaluationFragment extends Fragment {
                 avgTimeList = new ArrayList<>();
 
                 for(DataSnapshot dsp : snapshot.getChildren()) {
-
                     Object durationChild = dsp.child("duration").getValue();
                     if(durationChild != null) {
-                        Object userVal = dsp.getValue();
-//                        System.out.println("!!!!TEST!!!!: " + userVal);
-//                        System.out.println("2. !!!!TEST!!!!: " + dsp.child("duration").getValue());
                         avgTimeList.add(durationChild.toString());
+                        System.out.println("added to avgTimeList! ->" + durationChild.toString());
                     }
-
                 }
-
+                if(avgTimeList.size() > 0) {
+                    String newStr = calcAvgHrs();
+                    databaseReferenceHistory.setValue(newStr);
+                }
             }
 
             @Override
@@ -188,7 +187,7 @@ public class EvaluationFragment extends Fragment {
                 System.out.println("AVG: " + duration);
                 textDurationHrsAvg = duration;
 
-                if(textDurationHrsAvg != null) {
+                if(textDurationHrsAvg != null && !textDurationHrsAvg.isEmpty()) {
                     textViewDurationTimeAvg.setText("Average Sleeping Time: " + textDurationHrsAvg + " hours!");
                 } else {
                     textViewDurationTimeAvg.setText("Average Sleeping Time: EMPTY");
@@ -294,14 +293,12 @@ public class EvaluationFragment extends Fragment {
         dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
 
         durationHrs = hoursOfSleep+"";
-        String durationHrsAvg = calcAvgHrs();
 
         History history = new History(textStartingTime, textEndingTime, durationHrs);
 
         FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
         DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History");
 
-        databaseReferenceHistory.child(userChild+"").child("Average").setValue(durationHrsAvg);
         databaseReferenceHistory.child(userChild+"").child(dateChild).setValue(history);
 
     }
