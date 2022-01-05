@@ -70,6 +70,10 @@ public class EvaluationFragment extends Fragment {
     DatabaseReference startingTime;
     DatabaseReference endingTime;
 
+    //TODO: Analyse:
+    int numAwake = 0;
+    ArrayList<String> timeOfNumAwake = new ArrayList<>();
+
     public EvaluationFragment() {
         // Required empty public constructor
     }
@@ -120,6 +124,9 @@ public class EvaluationFragment extends Fragment {
 
         historyUser = databaseReferenceHistory.child(userChild);
         historyAverage = historyUser.child("Average");
+
+        //TODO:
+        timeOfNumAwake.add("");
 
 
         View rootView = inflater.inflate(R.layout.fragment_evaluation, container, false);
@@ -278,7 +285,7 @@ public class EvaluationFragment extends Fragment {
 
         String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
         durationHrs = hoursOfSleep+"";
-        History history = new History(textStartingTime, textEndingTime, durationHrs);
+        History history = new History(textStartingTime, textEndingTime, durationHrs, numAwake, timeOfNumAwake); //TODO
 
         historyUser.child(dateChild).setValue(history);
     }
