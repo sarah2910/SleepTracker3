@@ -63,8 +63,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private String mParam1;
     private String mParam2;
 
-    private Button startbtn, stopbtn, startSensorBtn, stopSensorBtn;
-    private MediaRecorder recorder;
+    private Button startSensorBtn, stopSensorBtn;
     private Sensor mySensor;
     private SensorManager SM;
     Timer timer;
@@ -159,11 +158,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
         View rootView = inflater.inflate(R.layout.fragment_recording, container, false);
 
-        startbtn = (Button)rootView.findViewById(R.id.btnRecord);
         startSensorBtn = (Button)rootView.findViewById(R.id.btnSensorRecord);
-        stopbtn = (Button)rootView.findViewById(R.id.btnStop);
         stopSensorBtn = (Button)rootView.findViewById(R.id.btnSensorStop);
-        stopbtn.setEnabled(false);
         stopSensorBtn.setEnabled(false);
 
         database = FirebaseDatabase.getInstance();
@@ -192,35 +188,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-        startbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(CheckPermissions()) {
-                    Log.e(LOG_TAG, "permissions passen");
-                    stopbtn.setEnabled(true);
-                    startbtn.setEnabled(false);
-                    recorder = new MediaRecorder();
-                    recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-                    recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-                    recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                    recorder.setOutputFile(myfile);
-
-                    try {
-                        recorder.prepare();
-                    } catch (IOException e) {
-                        Log.e(LOG_TAG, "prepare() failed");
-                        System.out.println(""+e);
-                    }
-
-                    recorder.start();
-                    Toast.makeText(getActivity().getApplicationContext(), "Recording Started", Toast.LENGTH_LONG).show();
-                } else {
-                    RequestPermissions();
-                }
 
             }
         });
@@ -334,18 +301,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     }
                 }, 0, 3000);
 
-            }
-        });
-
-        stopbtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                recording = false;
-                stopbtn.setEnabled(false);
-                startbtn.setEnabled(true);
-                recorder.stop();
-                recorder.release();
-                recorder = null;
             }
         });
 
