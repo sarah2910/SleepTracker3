@@ -159,7 +159,7 @@ public class EvaluationFragment extends Fragment {
                 avgTimeList = new ArrayList<>();
 
                 for(DataSnapshot dsp : snapshot.getChildren()) {
-                    Object durationChild = dsp.child("duration").getValue();
+                    Object durationChild = dsp.child("SleepAvg").child("duration").getValue();
                     if(durationChild != null) {
                         avgTimeList.add(durationChild.toString());
                         System.out.println("added to avgTimeList! ->" + durationChild.toString());
@@ -285,9 +285,9 @@ public class EvaluationFragment extends Fragment {
 
         String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
         durationHrs = hoursOfSleep+"";
-        History history = new History(textStartingTime, textEndingTime, durationHrs, numAwake, timeOfNumAwake); //TODO
+        History history = new History(textStartingTime, textEndingTime, durationHrs); //TODO
 
-        historyUser.child(dateChild).setValue(history);
+        historyUser.child(dateChild).child("SleepAvg").setValue(history);
     }
 
     public String calcAvgHrs() {
