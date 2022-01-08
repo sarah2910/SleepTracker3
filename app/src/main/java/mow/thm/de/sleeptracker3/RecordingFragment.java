@@ -140,7 +140,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
 
             SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
-            mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+            mySensor = SM.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
             movementDataX = new ArrayList<Float>();
             movementDataY = new ArrayList<Float>();
             movementDataZ = new ArrayList<Float>();
