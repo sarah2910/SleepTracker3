@@ -73,15 +73,19 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     long end;
     long delta;
 
-    //TODO: TEST:
-    float minX=100, minY=100, minZ=100;
-    float maxX=-100, maxY=-100, maxZ=-100;
-    float avgX=0, avgY=0, avgZ=0;
-    float allX=0;
-    int i=1;
+//    float minX=100, minY=100, minZ=100;
+//    float maxX=-100, maxY=-100, maxZ=-100;
+//    float avgX=0, avgY=0, avgZ=0;
+//    float allX=0;
+//    int i=1;
     ArrayList<Float> listX = new ArrayList<>(); // Hier sollen die letzten ~10 Werte gespeichert werden
+    ArrayList<Float> listY = new ArrayList<>();
+    ArrayList<Float> listZ = new ArrayList<>();
+
     double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
-    ArrayList<String> timeOfNumAwake = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
 
     String textStartingTime;
 
@@ -98,7 +102,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     MovementInfo movementInfo;
     MovementTime movementTime;
 
-    //TODO:
     FirebaseDatabase database;
     DatabaseReference databaseReferenceHistory;
     DatabaseReference databaseReferenceMovementTime;
@@ -262,30 +265,40 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                             addDataToFirebase(x, y, z/*, delta*/);
                             System.out.println("ADD DATA TO FIREBASE");
 
-                            //TODO:
-                            minX = (Math.min(x, minX));
-                            maxX = (Math.max(x, maxX));
-                            avgX = (allX+x)/i; // bringt nicht viel :)
+//                            minX = (Math.min(x, minX));
+//                            maxX = (Math.max(x, maxX));
+//                            avgX = (allX+x)/i; // bringt nicht viel :)
 
                             listX.add(x);
-                            if(listX.size() >= 10) {
+                            listY.add(y);
+                            listZ.add(z);
+
+                            if(listX.size() >= 10)
                                 listX.remove(0);
+                            if(listY.size() >= 10)
+                                listY.remove(0);
+                            if(listZ.size() >= 10)
+                                listZ.remove(0);
 
                                 //Durchschnittswert:
-                                double listAvgX = calcListAvg(listX);
-                                System.out.println("listAvgX: " + listAvgX);
+                                double listAvgX = calcListAvg(listX), listAvgY = calcListAvg(listY), listAvgZ = calcListAvg(listZ);
+                                System.out.println("listAvgX: " + listAvgX +"\nlistAvgY: " + listAvgY + "\nlistAvgZ: " + listAvgZ);
 
-                                double max = Math.max(listAvgX, x);
-                                double min = Math.min(listAvgX, x);
-                                double diff = max-min; // Immer positiv denke ich?
+                                double diffX = (Math.max(listAvgX, x)) - (Math.min(listAvgX, x)); // Immer positiv denke ich?
+                                double diffY = (Math.max(listAvgY, y)) - (Math.min(listAvgY, y));
+                                double diffZ = (Math.max(listAvgZ, z)) - (Math.min(listAvgZ, z));
 
-                                if(diff>peakDiff) {
-                                    LocalDateTime now = LocalDateTime.now();
-                                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
-                                    String date = now.format(dateTimeFormatter);
-                                    timeOfNumAwake.add(date);
-                                }
-                            }
+                                LocalDateTime now = LocalDateTime.now();
+                                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
+                                String date = now.format(dateTimeFormatter);
+
+                                if(diffX>peakDiff)
+                                    timeOfNumAwakeX.add(date);
+                                if(diffY>peakDiff)
+                                    timeOfNumAwakeY.add(date);
+                                if(diffZ>peakDiff)
+                                    timeOfNumAwakeZ.add(date);
+
                         }
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -314,15 +327,16 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 stopSensorBtn.setEnabled(false);
                 startSensorBtn.setEnabled(true);
 
-                //TODO:
-                System.out.println("MinX: " + minX + " & MaxX: " + maxX + " & avgX: " + avgX);
+//                System.out.println("MinX: " + minX + " & MaxX: " + maxX + " & avgX: " + avgX);
 
-                System.out.println("Time of Num Awake: ");
-                for(int i=0; i<timeOfNumAwake.size(); i++) {
-                    System.out.println(timeOfNumAwake);
+                System.out.println("Time of Num Awake X: ");
+                for(int i=0; i<timeOfNumAwakeX.size(); i++) {
+                    System.out.println(timeOfNumAwakeX);
                 }
 
-                Analytics analytics = new Analytics(timeOfNumAwake.size(), timeOfNumAwake);
+                Analytics analytics = new Analytics(timeOfNumAwakeX.size(), timeOfNumAwakeX,
+                                                    timeOfNumAwakeY.size(), timeOfNumAwakeY,
+                                                    timeOfNumAwakeZ.size(), timeOfNumAwakeZ);
 
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
                 historyUser.child(dateChild).child("Analytics").setValue(analytics);
