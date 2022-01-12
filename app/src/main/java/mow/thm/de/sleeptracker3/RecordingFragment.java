@@ -32,9 +32,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
@@ -86,6 +89,13 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
+    int timesAwakeX = 0;
+    int timesAwakeY = 0;
+    int timesAwakeZ = 0;
+    int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
+    Date tmpDateX;
+    Date tmpDateY;
+    Date tmpDateZ;
 
     String textStartingTime;
 
@@ -140,7 +150,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         if (savedInstanceState == null) {
             mgr = (PowerManager)getActivity().getSystemService(Context.POWER_SERVICE);
             wakeLock = mgr.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "MyApp::MyWakelockTag");
-
 
             SM = (SensorManager) getActivity().getSystemService(Context.SENSOR_SERVICE);
             mySensor = SM.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
@@ -291,12 +300,45 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
                                 String date = now.format(dateTimeFormatter);
 
-                                if(diffX>peakDiff)
+                            SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                            try {
+                                Date nowDate = sdf.parse(date);
+
+                                if(diffX>peakDiff) {
                                     timeOfNumAwakeX.add(date);
-                                if(diffY>peakDiff)
+                                    if(tmpDateX == null)
+                                        tmpDateX = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateX.getTime()>=durTimesAwake) {
+                                        timesAwakeX++;
+                                        tmpDateX = nowDate;
+                                        System.out.println("X - timesAwakeX: " + timesAwakeX);
+                                    }
+                                }
+                                if(diffY>peakDiff) {
                                     timeOfNumAwakeY.add(date);
-                                if(diffZ>peakDiff)
+                                    if(tmpDateY == null)
+                                        tmpDateY = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateY.getTime()>=durTimesAwake) {
+                                        timesAwakeY++;
+                                        tmpDateY = nowDate;
+                                        System.out.println("Y - timesAwakeY: " + timesAwakeY);
+                                    }
+                                }
+                                if(diffZ>peakDiff) {
                                     timeOfNumAwakeZ.add(date);
+                                    if(tmpDateZ == null)
+                                        tmpDateZ = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateZ.getTime()>=durTimesAwake) {
+                                        timesAwakeZ++;
+                                        tmpDateZ = nowDate;
+                                        System.out.println("Z - timesAwakeZ: " + timesAwakeZ);
+                                    }
+                                }
+
+                            } catch (ParseException e) {
+                                e.printStackTrace();
+                            }
+
 
                         }
 
@@ -333,9 +375,9 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     System.out.println(timeOfNumAwakeX);
                 }
 
-                Analytics analytics = new Analytics(timeOfNumAwakeX.size(), timeOfNumAwakeX,
-                                                    timeOfNumAwakeY.size(), timeOfNumAwakeY,
-                                                    timeOfNumAwakeZ.size(), timeOfNumAwakeZ);
+                Analytics analytics = new Analytics(timesAwakeX, timeOfNumAwakeX,
+                                                    timesAwakeY, timeOfNumAwakeY,
+                                                    timesAwakeZ, timeOfNumAwakeZ);
 
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
                 historyUser.child(dateChild).child("Analytics").setValue(analytics);
