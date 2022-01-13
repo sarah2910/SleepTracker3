@@ -66,6 +66,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     private String mParam1;
     private String mParam2;
 
+    private RecordingFragmentListener listener;
+
     private Button startSensorBtn, stopSensorBtn;
     private Sensor mySensor;
     private SensorManager SM;
@@ -86,7 +88,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     ArrayList<Float> listZ = new ArrayList<>();
 
     double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
-    ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+    public static ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
     int timesAwakeX = 0;
@@ -121,6 +123,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
     private boolean recording = false;
 
+    public interface RecordingFragmentListener {
+        void onInputRecordingSent(ArrayList<String> timeOfNumAwakeX);
+
+    }
 
     public RecordingFragment() {
         // Required empty public constructor

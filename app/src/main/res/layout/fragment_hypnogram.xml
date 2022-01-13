@@ -33,45 +33,33 @@
         app:layout_constraintTop_toBottomOf="@+id/textView2"
         app:layout_constraintVertical_bias="0.137" />
 
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="226sp"
-        android:layout_height="46sp"
-        android:backgroundTint="#FFFFFF"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.189"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/testGraph"
-        app:layout_constraintVertical_bias="0.602" />
-
-    <EditText
-        android:id="@+id/editText2"
-        android:layout_width="226sp"
-        android:layout_height="46sp"
-        android:backgroundTint="#FFFFFF"
-        android:textColor="#FFFFFF"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.189"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/testGraph"
-        app:layout_constraintVertical_bias="0.702" />
+    <Button
+    android:id="@+id/graphBtn"
+    android:layout_width="126sp"
+    android:layout_height="46sp"
+    android:text="Uhrzeiten in Graph zeichnen"
+    android:textColor="@color/white"
+    android:textSize="10sp"
+    app:layout_constraintBottom_toBottomOf="parent"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintHorizontal_bias="0.122"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toTopOf="@+id/testGraph"
+    app:layout_constraintVertical_bias="0.68" />
 
     <Button
-        android:id="@+id/graphBtn"
+        android:id="@+id/printBtn"
         android:layout_width="126sp"
         android:layout_height="46sp"
-        android:text="X- und Y-Werte hinzufügen"
+        android:text="Uhrzeiten printen"
         android:textColor="@color/white"
         android:textSize="10sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.122"
+        app:layout_constraintHorizontal_bias="0.722"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/testGraph"
-        app:layout_constraintVertical_bias="0.850" />
+        app:layout_constraintVertical_bias="0.68" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -17,13 +17,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
+import java.util.ArrayList;
+
 public class HomeActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
 
         BottomNavigationView bottomNavigationView;
 
@@ -41,7 +42,12 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new RecordingFragment();
                         break;
                     case R.id.nav_hypnogram:
+                        ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+                        timeOfNumAwakeX = RecordingFragment.timeOfNumAwakeX;
                         fragment = new HypnogramFragment();
+                        Bundle args = new Bundle();
+                        args.putStringArrayList("TimeOfNumAwakeX", timeOfNumAwakeX);
+                        fragment.setArguments(args);
                         break;
                     case R.id.nav_evaluation:
                         fragment = new EvaluationFragment();
@@ -58,3 +64,5 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 }
+
+

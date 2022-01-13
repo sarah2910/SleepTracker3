@@ -1,5 +1,6 @@
 package mow.thm.de.sleeptracker3;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
@@ -10,9 +11,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.jjoe64.graphview.GraphView;
+import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
@@ -34,15 +37,24 @@ public class HypnogramFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
+    private HypnogrammFragmentListener listener;
+
     PointsGraphSeries<DataPoint> xySeries;
 
+    ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+
     private Button graphBtn;
-    private EditText xText, yText;
+    private Button printBtn;
     GraphView mScatterPlot;
     private ArrayList<XYValue> xyValueArray;
 
     public HypnogramFragment() {
         // Required empty public constructor
+    }
+
+    public interface HypnogrammFragmentListener {
+        void onInputHypnogrammSent(ArrayList<String> timeOfNumAwakeX);
+
     }
 
     // TODO: Rename and change types and number of parameters
@@ -59,8 +71,7 @@ public class HypnogramFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+            timeOfNumAwakeX = getArguments().getStringArrayList("TimeOfNumAwakeX");
         }
     }
 
@@ -69,9 +80,9 @@ public class HypnogramFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_hypnogram, container, false);
 
+        RecordingFragment recording = (RecordingFragment)getParentFragment();
         graphBtn = (Button)rootView.findViewById(R.id.graphBtn);
-        xText = (EditText)rootView.findViewById(R.id.editText);
-        yText = (EditText)rootView.findViewById(R.id.editText2);
+        printBtn = (Button)rootView.findViewById(R.id.printBtn);
         mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
         xyValueArray = new ArrayList<>();
 
@@ -79,53 +90,33 @@ public class HypnogramFragment extends Fragment {
         graphBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(!xText.getText().toString().equals("") && !yText.getText().toString().equals("")) {
-                    double x = Double.parseDouble(xText.getText().toString());
-                    double y = Double.parseDouble(yText.getText().toString());
-                    xyValueArray.add(new XYValue(x, y));
-
-                } else {
-                    toastMessage("Bitte Felder füllen .... DANKE");
-                }
-
-                if(xyValueArray.size() != 0) {
-                    createScatterPlot();
-                } else {
-                    System.out.println("KEINE DATEN DA!");
-                }
+                xySeries = new PointsGraphSeries<>();
+                createScatterPlot();
             }
         });
+
+        printBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                for(int i = 0; i < timeOfNumAwakeX.size(); i++) {
+                    System.out.println("Datum " + i + ":" + timeOfNumAwakeX.get(i));
+                }
+
+            }
+        });
+
 
 
 
         return rootView;
     }
 
-    private void init() {
-        xySeries = new PointsGraphSeries<>();
-        graphBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!xText.getText().toString().equals("") && !yText.getText().toString().equals("")) {
-                    double x = Double.parseDouble(xText.getText().toString());
-                    double y = Double.parseDouble(yText.getText().toString());
-                    xyValueArray.add(new XYValue(x, y));
 
-                } else {
-                    toastMessage("Bitte Felder füllen .... DANKE");
-                }
-            }
-        });
 
-        System.out.println("HUHU!");
 
-        if(xyValueArray.size() != 0) {
-            createScatterPlot();
-        } else {
-            System.out.println("KEINE DATEN DA!");
-        }
 
-    }
+
+
 
     private void toastMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
@@ -134,28 +125,28 @@ public class HypnogramFragment extends Fragment {
     private void createScatterPlot() {
         Log.d(getTag(), "SOOOOO ... der plot wird gemacht hehe");
 
-        xyValueArray = sortArray(xyValueArray);
+        String newTimeOfNumAwakeX[] = new String[timeOfNumAwakeX.size()];
 
-        for(int i = 0; i < xyValueArray.size(); i++) {
-            System.out.println("X Wert: " + xyValueArray.get(i).getX());
-            System.out.println("Y Wert: " + xyValueArray.get(i).getY());
-        }
-
-        for(int i = 0; i < xyValueArray.size(); i++) {
+        for(int i = 0; i < timeOfNumAwakeX.size(); i++) {
             try {
-                double x = xyValueArray.get(i).getX();
-                double y = xyValueArray.get(i).getY();
-                xySeries.appendData(new DataPoint(x,y), true, 1000);
+                xySeries.appendData(new DataPoint(i,100), true, 1000);
+                newTimeOfNumAwakeX[i] = timeOfNumAwakeX.get(i);
             } catch (IllegalArgumentException e) {
                 Log.d(getTag(), "createScatterPlot: IllegalArgumentException: " + e.getMessage());
             }
         }
+
+
+
 
         //set some properties
         xySeries.setShape(PointsGraphSeries.Shape.RECTANGLE);
         xySeries.setColor(Color.parseColor("#201B52"));
         xySeries.setSize(20f);
 
+        StaticLabelsFormatter staticLabelsFormatter = new StaticLabelsFormatter(mScatterPlot);
+        staticLabelsFormatter.setHorizontalLabels(newTimeOfNumAwakeX);
+        mScatterPlot.getGridLabelRenderer().setLabelFormatter(staticLabelsFormatter);
 
         //set Scrollable and Scaleable
         mScatterPlot.getViewport().setScalable(true);
@@ -172,6 +163,11 @@ public class HypnogramFragment extends Fragment {
         mScatterPlot.getViewport().setXAxisBoundsManual(true);
         mScatterPlot.getViewport().setMaxX(150);
         mScatterPlot.getViewport().setMinX(-150);
+
+        mScatterPlot.getViewport().setScalable(true);  // activate horizontal zooming and scrolling
+        mScatterPlot.getViewport().setScrollable(true);  // activate horizontal scrolling
+        mScatterPlot.getViewport().setScalableY(true);  // activate horizontal and vertical zooming and scrolling
+        mScatterPlot.getViewport().setScrollableY(true);  // activate vertical scrolling
 
         mScatterPlot.addSeries(xySeries);
     }
@@ -216,4 +212,7 @@ public class HypnogramFragment extends Fragment {
         }
         return array;
     }
+
+
+
 }
