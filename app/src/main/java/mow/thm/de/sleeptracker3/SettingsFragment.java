@@ -17,6 +17,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Objects;
 
@@ -79,6 +85,7 @@ public class SettingsFragment extends Fragment {
         // button for logout and initialing our button.
         //Button logoutBtn = findViewById(R.id.idBtnLogout);
         Button logoutBtn = view.findViewById(R.id.idBtnLogout);
+        Button deleteBtn = view.findViewById(R.id.idBtnDelete);
 
         // adding onclick listener for our logout button.
         logoutBtn.setOnClickListener(new View.OnClickListener() {
@@ -107,6 +114,22 @@ public class SettingsFragment extends Fragment {
                                 startActivity(i);
                             }
                         });
+            }
+
+        });
+
+        deleteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+                assert currentFirebaseUser != null;
+                String userChild = currentFirebaseUser.getUid()+"";
+
+                DatabaseReference databaseReferenceUser = firebaseDatabase.getReference("MovementInfo").child(userChild+"");
+
+                databaseReferenceUser.removeValue();
 
             }
 
