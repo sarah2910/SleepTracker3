@@ -1,10 +1,15 @@
 package mow.thm.de.sleeptracker3;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -45,16 +50,18 @@ public class EvaluationFragment extends Fragment {
     private String textEndingTime;
     private String durationHrs;
     private String textDurationHrsAvg;
+    private String allText;
 
     ArrayList<String> avgTimeList;
 
-    private final float minSleep = 8;
+    private float minSleep = 8;
     Boolean moreThanAvg; // ob User mehr oder weniger als durchschnitt geschlafen hat
     Boolean moreThanMinSleep; // ob User mehr oder weniger als festgelegter Mindestschlaf geschlafen hat
 
     float hoursOfSleep;
 
     private Button submitEvaluationBtn;
+    private Button minSleepBtn;
 
     String userChild;
 
@@ -125,7 +132,6 @@ public class EvaluationFragment extends Fragment {
         historyUser = databaseReferenceHistory.child(userChild);
         historyAverage = historyUser.child("Average");
 
-        //TODO:
         timeOfNumAwake.add("");
 
 
@@ -134,10 +140,48 @@ public class EvaluationFragment extends Fragment {
         TextView textViewStartingTime = (TextView)rootView.findViewById(R.id.textStartingTime);
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
         TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDurationHrs);
+        TextView textViewMinSleep = (TextView)rootView.findViewById(R.id.textMinSleep);
 //        TextView textViewDurationTimeAvg = (TextView)rootView.findViewById(R.id.textDurationAvg);
 
         submitEvaluationBtn = (Button)rootView.findViewById(R.id.submitEvaluation);
+        minSleepBtn = (Button)rootView.findViewById(R.id.minSleep); // Recommended Sleep (8h) durch Userinput ändern
 
+        minSleepBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                builder.setTitle("Change Minimum of Sleep");
+
+                final EditText input = new EditText(getActivity());
+                input.setInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+                builder.setView(input);
+
+                builder.setPositiveButton(Html.fromHtml("<font color='#FFFFFF'>OK</font>"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        String i = input.getText().toString();
+
+                        if(i.matches("") || Float.parseFloat(i)<0.0) {
+                            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "Error! Please Enter a valid number!", Toast.LENGTH_LONG).show();
+                        } else {
+                            minSleep = Float.parseFloat(i);
+                            historyUser.child("minSleep").setValue(minSleep + "");
+                            moreThanMinSleep = (hoursOfSleep > minSleep);
+                            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "minSleep changed!", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
+                builder.setNegativeButton(Html.fromHtml("<font color='#FFFFFF'>CANCEL</font>"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+
+                builder.show();
+            }
+        });
 
         submitEvaluationBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -173,6 +217,27 @@ public class EvaluationFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+        historyUser.child("minSleep").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                moreThanMinSleep = (hoursOfSleep>minSleep);
+
+                String min = snapshot.getValue(String.class);
+                if(min != null) {
+                    minSleep=Float.parseFloat(min);
+                    textViewMinSleep.setText("MinSleep: " + min + " Hours");
+                } else {
+                    textViewMinSleep.setText("MinSleep: EMPTY");
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
             }
         });
 
@@ -217,8 +282,8 @@ public class EvaluationFragment extends Fragment {
                 Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
             }
         });
-        endingTime.addValueEventListener(new ValueEventListener() {
 
+        endingTime.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 String end = snapshot.getValue(String.class);
@@ -227,9 +292,27 @@ public class EvaluationFragment extends Fragment {
 
                 if (textEndingTime != null) {
                     textViewEndingTime.setText("Ending Time: "+textEndingTime);
+                } else {
+                    textViewEndingTime.setText("Ending Time: EMPTY");
+                }
+            }
 
-                    if(textStartingTime != null) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        });
+
+        historyUser.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (textEndingTime != null) {
+                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
+
+                    if(textStartingTime != null && textEndingTime != null) {
                         String start = (String) textStartingTime;
+                        String end = (String) textEndingTime;
 
                         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                         try {
@@ -256,19 +339,15 @@ public class EvaluationFragment extends Fragment {
                                 text+= ((moreThanAvg) ? "more" : "less");
                                 text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
                                 text+= ((moreThanMinSleep) ? "more" : "less");
-                                text+= " than your recommended Sleep (" + minSleep + "h).\n\n";
+                                text+= " than your minimum Sleep.\n\n";
                                 text+= ((moreThanMinSleep) ? ":)" : ":(");
                             }
-
                             textViewDurationTime.setText(text);
-
 
                         } catch (ParseException e) {
                             e.printStackTrace();
                         }
                     }
-                } else {
-                    textViewEndingTime.setText("Ending Time: EMPTY");
                 }
             }
 

@@ -71,7 +71,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.414" />
 
-<!--    <TextView-->
+    <!--    <TextView-->
 <!--        android:id="@+id/textDurationAvg"-->
 <!--        android:layout_width="wrap_content"-->
 <!--        android:layout_height="wrap_content"-->
@@ -83,6 +83,19 @@
 <!--        app:layout_constraintStart_toStartOf="parent"-->
 <!--        app:layout_constraintTop_toTopOf="parent" />-->
 
+    <TextView
+        android:id="@+id/textMinSleep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="textMinSleep"
+        android:textColor="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.513"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.581" />
+
     <Button
         android:id="@+id/submitEvaluation"
         android:layout_width="wrap_content"
@@ -93,5 +106,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.768" />
+
+    <Button
+        android:id="@+id/minSleep"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Change Minimum of Sleep"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.496"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.655" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
