@@ -93,10 +93,10 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     ArrayList<Float> listY = new ArrayList<>();
     ArrayList<Float> listZ = new ArrayList<>();
 
-    public static ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
-    ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
+    public static ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
 
     int timesAwakeX = 0;
     int timesAwakeY = 0;

@@ -3,6 +3,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+
     }
     dependencies {
         classpath "com.android.tools.build:gradle:7.0.3"
@@ -15,11 +16,10 @@ buildscript {
     }
 }
 
-//// Added for Firebase - wirft Exception (evtl nicht notwendig?):
 //allprojects {
-//    repositories {
-//        google()
-//    }
+    //repositories {
+       //google()
+    //}
 //}
 
 task clean(type: Delete) {

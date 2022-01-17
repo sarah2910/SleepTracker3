@@ -42,12 +42,7 @@ public class HomeActivity extends AppCompatActivity {
                         fragment = new RecordingFragment();
                         break;
                     case R.id.nav_hypnogram:
-                        ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
-                        timeOfNumAwakeX = RecordingFragment.timeOfNumAwakeX;
                         fragment = new HypnogramFragment();
-                        Bundle args = new Bundle();
-                        args.putStringArrayList("TimeOfNumAwakeX", timeOfNumAwakeX);
-                        fragment.setArguments(args);
                         break;
                     case R.id.nav_evaluation:
                         fragment = new EvaluationFragment();

@@ -14,6 +14,12 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.github.mikephil.charting.charts.PieChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.jjoe64.graphview.GraphView;
 import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
@@ -37,24 +43,22 @@ public class HypnogramFragment extends Fragment {
     private String mParam1;
     private String mParam2;
 
-    private HypnogrammFragmentListener listener;
-
     PointsGraphSeries<DataPoint> xySeries;
 
-    ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
 
     private Button graphBtn;
     private Button printBtn;
-    GraphView mScatterPlot;
-    private ArrayList<XYValue> xyValueArray;
+
+    private float[] Schlafanteile = {20.0f, 40.0f, 40.0f};
+    private String[] Schlafkategorien = {"leichter Schlaf", "mittlerer Schlaf", "tiefer Schlaf"};
+    PieChart pieChart;
+
+    //GraphView mScatterPlot;
+    //private ArrayList<XYValue> xyValueArray;
 
     public HypnogramFragment() {
         // Required empty public constructor
-    }
-
-    public interface HypnogrammFragmentListener {
-        void onInputHypnogrammSent(ArrayList<String> timeOfNumAwakeX);
-
     }
 
     // TODO: Rename and change types and number of parameters
@@ -71,7 +75,7 @@ public class HypnogramFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            timeOfNumAwakeX = getArguments().getStringArrayList("TimeOfNumAwakeX");
+
         }
     }
 
@@ -80,26 +84,38 @@ public class HypnogramFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_hypnogram, container, false);
 
-        RecordingFragment recording = (RecordingFragment)getParentFragment();
-        graphBtn = (Button)rootView.findViewById(R.id.graphBtn);
+        graphBtn = (Button)rootView.findViewById(R.id.chartBtn);
         printBtn = (Button)rootView.findViewById(R.id.printBtn);
-        mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
-        xyValueArray = new ArrayList<>();
+        pieChart = (PieChart)rootView.findViewById(R.id.pieChart);
+        Description description = pieChart.getDescription();
+        //mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
+        //xyValueArray = new ArrayList<>();
+        timeOfNumAwakeAll = RecordingFragment.timeOfNumAwakeAll;
 
-        xySeries = new PointsGraphSeries<>();
+        description.setText("Anteile von leichtem, mittlerem und tiefem Schlaf");
+        pieChart.setRotationEnabled(true);
+        pieChart.setHoleRadius(25.f);
+        pieChart.setCenterText("Schlafanteile");
+        pieChart.setCenterTextSize(10);
+
+        addDataSet();
+
+        //xySeries = new PointsGraphSeries<>();
         graphBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 xySeries = new PointsGraphSeries<>();
                 createScatterPlot();
+                */
             }
         });
 
         printBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                for(int i = 0; i < timeOfNumAwakeX.size(); i++) {
-                    System.out.println("Datum " + i + ":" + timeOfNumAwakeX.get(i));
+                for(int i = 0; i < timeOfNumAwakeAll.size(); i++) {
+                    System.out.println("Datum " + i + ":" + timeOfNumAwakeAll.get(i));
                 }
 
             }
@@ -111,26 +127,57 @@ public class HypnogramFragment extends Fragment {
         return rootView;
     }
 
+    private void addDataSet() {
+        ArrayList<PieEntry> EinträgeSchlafanteile = new ArrayList<>();
+        ArrayList<String> EinträgeSchlafkategorien = new ArrayList<>();
+
+        for(int i = 0; i < Schlafanteile.length; i++) {
+            EinträgeSchlafanteile.add(new PieEntry(Schlafanteile[i], i));
+        }
+
+        for(int i = 0; i < Schlafkategorien.length; i++) {
+            EinträgeSchlafkategorien.add(Schlafkategorien[i]);
+        }
+
+        PieDataSet Datensatz = new PieDataSet(EinträgeSchlafanteile, "Schlafanteile");
+        Datensatz.setSliceSpace(2);
+        Datensatz.setValueTextSize(12);
+
+        ArrayList<Integer> farben = new ArrayList<>();
+        farben.add(Color.RED);
+        farben.add(Color.YELLOW);
+        farben.add(Color.GREEN);
+
+        Datensatz.setColors(farben);
+
+        Legend Legende = pieChart.getLegend();
+        Legende.setForm(Legend.LegendForm.CIRCLE);
+        Legende.setHorizontalAlignment(Legend.LegendHorizontalAlignment.LEFT);
+        Legende.setVerticalAlignment(Legend.LegendVerticalAlignment.TOP);
+        Legende.setTextColor(Color.WHITE);
+
+        PieData Daten = new PieData(Datensatz);
+        pieChart.setData(Daten);
+        pieChart.invalidate();
 
 
-
-
-
+    }
 
 
     private void toastMessage(String message) {
         Toast.makeText(getActivity(), message, Toast.LENGTH_SHORT).show();
     }
 
+    /*
     private void createScatterPlot() {
         Log.d(getTag(), "SOOOOO ... der plot wird gemacht hehe");
 
-        String newTimeOfNumAwakeX[] = new String[timeOfNumAwakeX.size()];
+        String newTimeOfNumAwakeX[] = new String[timeOfNumAwakeAll.size()];
 
-        for(int i = 0; i < timeOfNumAwakeX.size(); i++) {
+        for(int i = 0; i < timeOfNumAwakeAll.size(); i++) {
             try {
                 xySeries.appendData(new DataPoint(i,100), true, 1000);
-                newTimeOfNumAwakeX[i] = timeOfNumAwakeX.get(i);
+                newTimeOfNumAwakeX[i] = timeOfNumAwakeAll.get(i);
             } catch (IllegalArgumentException e) {
                 Log.d(getTag(), "createScatterPlot: IllegalArgumentException: " + e.getMessage());
             }
@@ -212,6 +259,8 @@ public class HypnogramFragment extends Fragment {
         }
         return array;
     }
+    */
+
 
 
 
