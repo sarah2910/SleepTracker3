@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -340,9 +341,15 @@ public class EvaluationFragment extends Fragment {
                                 text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
                                 text+= ((moreThanMinSleep) ? "more" : "less");
                                 text+= " than your minimum Sleep.\n\n";
-                                text+= ((moreThanMinSleep) ? ":)" : ":(");
+                                text+= ((moreThanMinSleep) ? "" : ":(");
                             }
                             textViewDurationTime.setText(text);
+
+                            if(moreThanMinSleep) {
+                                ImageView imgView = (ImageView) rootView.findViewById(R.id.happy);
+                                if(imgView != null)
+                                    imgView.setVisibility(View.VISIBLE);
+                            }
 
                         } catch (ParseException e) {
                             e.printStackTrace();
