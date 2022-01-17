@@ -83,26 +83,54 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 //    float avgX=0, avgY=0, avgZ=0;
 //    float allX=0;
 //    int i=1;
+
+
+
+    // Wachzeiten:
+    double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
+
     ArrayList<Float> listX = new ArrayList<>(); // Hier sollen die letzten ~10 Werte gespeichert werden
     ArrayList<Float> listY = new ArrayList<>();
     ArrayList<Float> listZ = new ArrayList<>();
-
-    double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
-    double peakDiff2 = 0.05; // erkennt auch kleinere Differenzen
 
     public static ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
+
     int timesAwakeX = 0;
     int timesAwakeY = 0;
     int timesAwakeZ = 0;
     int timesAwakeAll = 0;
-    int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
+
     Date tmpDateX;
     Date tmpDateY;
     Date tmpDateZ;
     Date tmpDateLast;
+
+    // Leichter Schlaf:
+    double peakDiff2 = 0.05; // erkennt auch kleinere Differenzen
+
+    ArrayList<String> timeOfNumAwakeX2 = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeY2 = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeZ2 = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeAll2 = new ArrayList<>();
+
+    int timesAwakeX2 = 0;
+    int timesAwakeY2 = 0;
+    int timesAwakeZ2 = 0;
+    int timesAwakeAll2 = 0;
+
+    Date tmpDateX2;
+    Date tmpDateY2;
+    Date tmpDateZ2;
+    Date tmpDateLast2;
+
+
+
+
+    int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
+
 
     String textStartingTime;
 
@@ -303,7 +331,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                 double listAvgX = calcListAvg(listX), listAvgY = calcListAvg(listY), listAvgZ = calcListAvg(listZ);
                                 System.out.println("listAvgX: " + listAvgX +"\nlistAvgY: " + listAvgY + "\nlistAvgZ: " + listAvgZ);
 
-                                double diffX = (Math.max(listAvgX, x)) - (Math.min(listAvgX, x)); // Immer positiv denke ich?
+                                double diffX = (Math.max(listAvgX, x)) - (Math.min(listAvgX, x)); // Immer positiv
                                 double diffY = (Math.max(listAvgY, y)) - (Math.min(listAvgY, y));
                                 double diffZ = (Math.max(listAvgZ, z)) - (Math.min(listAvgZ, z));
 
@@ -315,6 +343,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                             try {
                                 Date nowDate = sdf.parse(date);
 
+                                // Wachzeiten:
                                 if(diffX>peakDiff || diffY>peakDiff || diffZ>peakDiff) {
 
                                     if(tmpDateLast == null)
@@ -356,6 +385,46 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                     }
                                 }
 
+                                // TODO: Leichter Schlaf:
+                                if(diffX>peakDiff2 || diffY>peakDiff2 || diffZ>peakDiff2) {
+
+                                    if(tmpDateLast2 == null)
+                                        tmpDateLast2 = nowDate;
+                                    if(nowDate.getTime()-tmpDateLast2.getTime()>durTimesAwake) {
+                                        timesAwakeAll2++;
+                                        tmpDateLast2=nowDate;
+                                    }
+                                }
+
+                                if(diffX>peakDiff2) {
+                                    timeOfNumAwakeX2.add(date);
+                                    if(tmpDateX2 == null)
+                                        tmpDateX2 = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateX2.getTime()>=durTimesAwake) {
+                                        timesAwakeX2++;
+                                        tmpDateX2 = nowDate;
+                                    }
+                                }
+                                if(diffY>peakDiff2) {
+                                    timeOfNumAwakeY2.add(date);
+                                    if(tmpDateY2 == null)
+                                        tmpDateY2 = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateY2.getTime()>=durTimesAwake) {
+                                        timesAwakeY2++;
+                                        tmpDateY2 = nowDate;
+                                    }
+                                }
+                                if(diffZ>peakDiff2) {
+                                    timeOfNumAwakeZ2.add(date);
+                                    if(tmpDateZ2 == null)
+                                        tmpDateZ2 = nowDate; // 1. Durchgang
+                                    if(nowDate.getTime()-tmpDateZ2.getTime()>=durTimesAwake) {
+                                        timesAwakeZ2++;
+                                        tmpDateZ2 = nowDate;
+                                    }
+                                }
+                                // TODO ENDE
+
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
@@ -396,14 +465,27 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     System.out.println(timeOfNumAwakeX);
                 }
 
-                calcTimeAll(); //TODO: timeOfNumAwakeAll berechnen
+                calcTimeAll(); //timeOfNumAwakeAll berechnen
+                calcTimeAll2();
+
                 Analytics analytics = new Analytics(timesAwakeX, timeOfNumAwakeX,
                                                     timesAwakeY, timeOfNumAwakeY,
                                                     timesAwakeZ, timeOfNumAwakeZ,
                                                     timesAwakeAll, timeOfNumAwakeAll);
 
+                Analytics analytics2 = new Analytics(timesAwakeX2, timeOfNumAwakeX2,
+                        timesAwakeY2, timeOfNumAwakeY2,
+                        timesAwakeZ2, timeOfNumAwakeZ2,
+                        timesAwakeAll2, timeOfNumAwakeAll2);
+
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
-                historyUser.child(dateChild).child("Analytics").setValue(analytics);
+
+                //TODO: Leichter Schlaf und "Wachzeiten!"
+                // Wachzeiten:
+                historyUser.child(dateChild).child("Analytics").child("Awake").setValue(analytics);
+                // Leichter Schlaf:
+                historyUser.child(dateChild).child("Analytics").child("LightSleep").setValue(analytics2);
+
 
                 LocalDateTime now = LocalDateTime.now();
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
@@ -421,6 +503,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         timeOfNumAwakeAll.addAll(timeOfNumAwakeX);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeY);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeZ);
+    }
+    public void calcTimeAll2() {
+        timeOfNumAwakeAll2.addAll(timeOfNumAwakeX2);
+        timeOfNumAwakeAll2.addAll(timeOfNumAwakeY2);
+        timeOfNumAwakeAll2.addAll(timeOfNumAwakeZ2);
     }
 
     public double calcListAvg(ArrayList<Float> list) {
