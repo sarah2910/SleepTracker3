@@ -8,11 +8,13 @@ public class Analytics {
     int numAwakeX;
     int numAwakeY;
     int numAwakeZ;
+    int numAwakeAll;
 
     // Zu welchen Uhrzeiten man "leichten Schlaf" hatte:
     ArrayList<String> timeOfNumAwakeX;
     ArrayList<String> timeOfNumAwakeY;
     ArrayList<String> timeOfNumAwakeZ;
+    ArrayList<String> timeOfNumAwakeAll;
 
     public Analytics() {
 
@@ -20,14 +22,16 @@ public class Analytics {
 
     public Analytics(int numAwakeX, ArrayList<String> timeOfNumAwakeX,
                      int numAwakeY, ArrayList<String> timeOfNumAwakeY,
-                     int numAwakeZ, ArrayList<String> timeOfNumAwakeZ) {
+                     int numAwakeZ, ArrayList<String> timeOfNumAwakeZ,
+                     int numAwakeAll, ArrayList<String> timeOfNumAwakeAll) {
         this.numAwakeX = numAwakeX;
         this.timeOfNumAwakeX = timeOfNumAwakeX;
         this.numAwakeY = numAwakeY;
         this.timeOfNumAwakeY = timeOfNumAwakeY;
         this.numAwakeZ = numAwakeZ;
         this.timeOfNumAwakeZ = timeOfNumAwakeZ;
-
+        this.numAwakeAll = numAwakeAll;
+        this.timeOfNumAwakeAll = timeOfNumAwakeAll;
     }
 
     public int getNumAwakeX() {
@@ -39,6 +43,7 @@ public class Analytics {
     public int getNumAwakeZ() {
         return numAwakeZ;
     }
+    public int getNumAwakeAll() { return numAwakeAll; }
 
     public ArrayList<String> getTimeOfNumAwakeX() {
         return timeOfNumAwakeX;
@@ -49,6 +54,7 @@ public class Analytics {
     public ArrayList<String> getTimeOfNumAwakeZ() {
         return timeOfNumAwakeZ;
     }
+    public ArrayList<String> getTimeOfNumAwakeAll() { return timeOfNumAwakeAll; }
 
     public void setNumAwakeX(int numAwakeX) {
         this.numAwakeX = numAwakeX;
@@ -59,6 +65,7 @@ public class Analytics {
     public void setNumAwakeZ(int numAwakeZ) {
         this.numAwakeZ = numAwakeZ;
     }
+    public void setNumAwakeAll(int numAwakeAll) { this.numAwakeAll = numAwakeAll; }
 
     public void setTimeOfNumAwakeX(ArrayList<String> timeOfNumAwakeX) {
         this.timeOfNumAwakeX = timeOfNumAwakeX;
@@ -68,6 +75,9 @@ public class Analytics {
     }
     public void setTimeOfNumAwakeZ(ArrayList<String> timeOfNumAwakeZ) {
         this.timeOfNumAwakeZ = timeOfNumAwakeZ;
+    }
+    public void setTimeOfNumAwakeAll(ArrayList<String> timeOfNumAwakeAll) {
+        this.timeOfNumAwakeAll = timeOfNumAwakeAll;
     }
 
 }

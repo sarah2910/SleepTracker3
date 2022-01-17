@@ -88,16 +88,21 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     ArrayList<Float> listZ = new ArrayList<>();
 
     double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
+    double peakDiff2 = 0.05; // erkennt auch kleinere Differenzen
+
     public static ArrayList<String> timeOfNumAwakeX = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ = new ArrayList<>();
+    ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
     int timesAwakeX = 0;
     int timesAwakeY = 0;
     int timesAwakeZ = 0;
+    int timesAwakeAll = 0;
     int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
     Date tmpDateX;
     Date tmpDateY;
     Date tmpDateZ;
+    Date tmpDateLast;
 
     String textStartingTime;
 
@@ -310,6 +315,16 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                             try {
                                 Date nowDate = sdf.parse(date);
 
+                                if(diffX>peakDiff || diffY>peakDiff || diffZ>peakDiff) {
+
+                                    if(tmpDateLast == null)
+                                        tmpDateLast = nowDate;
+                                    if(nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake) {
+                                        timesAwakeAll++;
+                                        tmpDateLast=nowDate;
+                                    }
+                                }
+
                                 if(diffX>peakDiff) {
                                     timeOfNumAwakeX.add(date);
                                     if(tmpDateX == null)
@@ -381,9 +396,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     System.out.println(timeOfNumAwakeX);
                 }
 
+                calcTimeAll(); //TODO: timeOfNumAwakeAll berechnen
                 Analytics analytics = new Analytics(timesAwakeX, timeOfNumAwakeX,
                                                     timesAwakeY, timeOfNumAwakeY,
-                                                    timesAwakeZ, timeOfNumAwakeZ);
+                                                    timesAwakeZ, timeOfNumAwakeZ,
+                                                    timesAwakeAll, timeOfNumAwakeAll);
 
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
                 historyUser.child(dateChild).child("Analytics").setValue(analytics);
@@ -400,6 +417,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         return rootView;
     }
 
+    public void calcTimeAll() {
+        timeOfNumAwakeAll.addAll(timeOfNumAwakeX);
+        timeOfNumAwakeAll.addAll(timeOfNumAwakeY);
+        timeOfNumAwakeAll.addAll(timeOfNumAwakeZ);
+    }
 
     public double calcListAvg(ArrayList<Float> list) {
         float sum = 0, avg;
