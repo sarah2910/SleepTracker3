@@ -231,7 +231,7 @@ public class EvaluationFragment extends Fragment {
                     minSleep=Float.parseFloat(min);
                     textViewMinSleep.setText("MinSleep: " + min + " Hours");
                 } else {
-                    textViewMinSleep.setText("MinSleep: EMPTY");
+                    //textViewMinSleep.setText("MinSleep: EMPTY");
                 }
 
             }
@@ -341,16 +341,17 @@ public class EvaluationFragment extends Fragment {
                                 text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
                                 text+= ((moreThanMinSleep) ? "more" : "less");
                                 text+= " than your minimum Sleep.\n\n";
+
+                                ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
+                                if(moreThanMinSleep) {
+                                    imgViewSmiley.setImageResource(R.drawable.smiley_happy);
+                                } else {
+                                    imgViewSmiley.setImageResource(R.drawable.smiley_sad);
+                                }
                             }
                             textViewDurationTime.setText(text);
 
-                            ImageView imgViewSmiley = (ImageView) rootView.findViewById(R.id.smiley);
 
-                            if(moreThanMinSleep) {
-                                imgViewSmiley.setImageResource(R.drawable.smiley_happy);
-                            } else {
-                                imgViewSmiley.setImageResource(R.drawable.smiley_sad);
-                            }
 
                         } catch (ParseException e) {
                             e.printStackTrace();
@@ -372,9 +373,9 @@ public class EvaluationFragment extends Fragment {
 
         String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
         durationHrs = hoursOfSleep+"";
-        History history = new History(textStartingTime, textEndingTime, durationHrs); //TODO
+        History history = new History(textStartingTime, textEndingTime, durationHrs);
 
-        historyUser.child(dateChild).child("SleepAvg").setValue(history);
+        historyUser.child(textStartingTime).child("SleepAvg").setValue(history);
     }
 
     public String calcAvgHrs() {

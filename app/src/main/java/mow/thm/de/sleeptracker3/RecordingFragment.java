@@ -480,11 +480,11 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
 
-                //TODO: Leichter Schlaf und "Wachzeiten!"
+                //Leichter Schlaf und "Wachzeiten!"
                 // Wachzeiten:
-                historyUser.child(dateChild).child("Analytics").child("Awake").setValue(analytics);
+                historyUser.child(textStartingTime).child("Analytics").child("Awake").setValue(analytics);
                 // Leichter Schlaf:
-                historyUser.child(dateChild).child("Analytics").child("LightSleep").setValue(analytics2);
+                historyUser.child(textStartingTime).child("Analytics").child("LightSleep").setValue(analytics2);
 
 
                 LocalDateTime now = LocalDateTime.now();
