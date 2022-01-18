@@ -25,6 +25,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -142,7 +143,6 @@ public class EvaluationFragment extends Fragment {
         TextView textViewEndingTime = (TextView)rootView.findViewById(R.id.textEndingTime);
         TextView textViewDurationTime = (TextView)rootView.findViewById(R.id.textDurationHrs);
         TextView textViewMinSleep = (TextView)rootView.findViewById(R.id.textMinSleep);
-//        TextView textViewDurationTimeAvg = (TextView)rootView.findViewById(R.id.textDurationAvg);
 
         submitEvaluationBtn = (Button)rootView.findViewById(R.id.submitEvaluation);
         minSleepBtn = (Button)rootView.findViewById(R.id.minSleep); // Recommended Sleep (8h) durch Userinput ändern
@@ -229,7 +229,7 @@ public class EvaluationFragment extends Fragment {
                 String min = snapshot.getValue(String.class);
                 if(min != null) {
                     minSleep=Float.parseFloat(min);
-                    textViewMinSleep.setText("MinSleep: " + min + " Hours");
+                    textViewMinSleep.setText("Minimum Sleep Duration: " + min + " Hours");
                 } else {
                     //textViewMinSleep.setText("MinSleep: EMPTY");
                 }
@@ -280,7 +280,7 @@ public class EvaluationFragment extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -293,6 +293,56 @@ public class EvaluationFragment extends Fragment {
 
                 if (textEndingTime != null) {
                     textViewEndingTime.setText("Ending Time: "+textEndingTime);
+
+                    if(textStartingTime != null ) {
+                        String start = (String) textStartingTime;
+
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        try {
+                            Date d1 = sdf.parse(start);
+                            Date d2 = sdf.parse(end);
+
+                            long diff_ms = d2.getTime() - d1.getTime();
+                            long diff_s = (diff_ms / 1000) % 60;
+                            long diff_min = (diff_ms / (1000 * 60)) % 60;
+                            long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
+
+                            hoursOfSleep = (float) ((float) diff_ms / (1000 * 60)) / 60;
+
+
+                            if (textDurationHrsAvg != null) {
+                                float durationFloat = Float.parseFloat(textDurationHrsAvg);
+                                moreThanAvg = hoursOfSleep > durationFloat;
+                                DecimalFormat df = new DecimalFormat("#.##"); // Nur 2 Nachkommastellen
+                                String formattedTextDurationHrsAvg = df.format(durationFloat);
+
+                                moreThanMinSleep = (hoursOfSleep > minSleep);
+
+                                String text = "You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!";
+
+                                if (moreThanAvg != null) {
+                                    text += " \n\nThis is ";
+                                    text += ((moreThanAvg) ? "more" : "less");
+                                    text += " than your average Sleep (" + formattedTextDurationHrsAvg + "h) and\n";
+                                    text += ((moreThanMinSleep) ? "more" : "less");
+                                    text += " than your minimum Sleep.\n\n";
+
+                                    ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
+                                    if (moreThanMinSleep) {
+                                        imgViewSmiley.setImageResource(R.drawable.smiley_happy);
+                                    } else {
+                                        imgViewSmiley.setImageResource(R.drawable.smiley_sad);
+                                    }
+                                }
+                                textViewDurationTime.setText(text);
+                            }
+
+
+                        } catch (ParseException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
                 } else {
                     textViewEndingTime.setText("Ending Time: EMPTY");
                 }
@@ -303,68 +353,71 @@ public class EvaluationFragment extends Fragment {
             }
         });
 
-        historyUser.addValueEventListener(new ValueEventListener() {
-
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if (textEndingTime != null) {
-                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
-
-                    if(textStartingTime != null && textEndingTime != null) {
-                        String start = (String) textStartingTime;
-                        String end = (String) textEndingTime;
-
-                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
-                        try {
-                            Date d1 = sdf.parse(start);
-                            Date d2 = sdf.parse(end);
-
-                            long diff_ms = d2.getTime() - d1.getTime();
-                            long diff_s = (diff_ms/1000)%60;
-                            long diff_min = (diff_ms / (1000 * 60)) % 60;
-                            long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
-
-                            hoursOfSleep = (float) ((float)diff_ms / (1000 * 60))/60;
-
-                            if(textDurationHrsAvg != null) {
-                                moreThanAvg = hoursOfSleep > Float.parseFloat(textDurationHrsAvg);
-                            }
-
-                            moreThanMinSleep = (hoursOfSleep>minSleep);
-
-                            String text = "You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!";
-
-                            if(moreThanAvg != null && moreThanMinSleep != null) {
-                                text+=" \n\nThis is ";
-                                text+= ((moreThanAvg) ? "more" : "less");
-                                text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
-                                text+= ((moreThanMinSleep) ? "more" : "less");
-                                text+= " than your minimum Sleep.\n\n";
-
-                                ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
-                                if(moreThanMinSleep) {
-                                    imgViewSmiley.setImageResource(R.drawable.smiley_happy);
-                                } else {
-                                    imgViewSmiley.setImageResource(R.drawable.smiley_sad);
-                                }
-                            }
-                            textViewDurationTime.setText(text);
-
-
-
-                        } catch (ParseException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
-            }
-        });
+//        endingTime.addValueEventListener(new ValueEventListener() {
+//
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//
+//                if (textEndingTime != null) {
+//                    textViewEndingTime.setText("Ending Time: "+textEndingTime);
+//
+//                    if(textStartingTime != null && textEndingTime != null) {
+//                        String start = (String) textStartingTime;
+//                        String end = (String) textEndingTime;
+//
+//                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+//                        try {
+//                            Date d1 = sdf.parse(start);
+//                            Date d2 = sdf.parse(end);
+//
+//                            long diff_ms = d2.getTime() - d1.getTime();
+//                            long diff_s = (diff_ms / 1000) % 60;
+//                            long diff_min = (diff_ms / (1000 * 60)) % 60;
+//                            long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
+//
+//                            hoursOfSleep = (float) ((float) diff_ms / (1000 * 60)) / 60;
+//
+//
+//                            if (textDurationHrsAvg != null) {
+//                                float durationFloat = Float.parseFloat(textDurationHrsAvg);
+//                                moreThanAvg = hoursOfSleep > durationFloat;
+//                                DecimalFormat df = new DecimalFormat("#.##"); // Nur 2 Nachkommastellen
+//                                String formattedTextDurationHrsAvg = df.format(durationFloat);
+//
+//                                moreThanMinSleep = (hoursOfSleep > minSleep);
+//
+//                                String text = "You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!";
+//
+//                                if (moreThanAvg != null) {
+//                                    text += " \n\nThis is ";
+//                                    text += ((moreThanAvg) ? "more" : "less");
+//                                    text += " than your average Sleep (" + formattedTextDurationHrsAvg + "h) and\n";
+//                                    text += ((moreThanMinSleep) ? "more" : "less");
+//                                    text += " than your minimum Sleep.\n\n";
+//
+//                                    ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
+//                                    if (moreThanMinSleep) {
+//                                        imgViewSmiley.setImageResource(R.drawable.smiley_happy);
+//                                    } else {
+//                                        imgViewSmiley.setImageResource(R.drawable.smiley_sad);
+//                                    }
+//                                }
+//                                textViewDurationTime.setText(text);
+//                        }
+//
+//
+//                        } catch (ParseException e) {
+//                            e.printStackTrace();
+//                        }
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//                Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "ERROR", Toast.LENGTH_SHORT).show();
+//            }
+//        });
 
         return rootView;
     }

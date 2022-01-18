@@ -8,16 +8,6 @@
     tools:context=".EvaluationFragment">
 
 
-<!--    <Button-->
-<!--        android:id="@+id/btnShowData"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="16dp"-->
-<!--        android:text="Show me Sleeping Time"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
-
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
@@ -36,7 +26,7 @@
         android:id="@+id/textStartingTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="StartingTime: "
+        android:text=" "
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -49,7 +39,7 @@
         android:id="@+id/textEndingTime"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="EndingTime: "
+        android:text=" "
         android:textColor="@color/white"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -71,17 +61,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.414" />
 
-    <!--    <TextView-->
-<!--        android:id="@+id/textDurationAvg"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:text="textDurationAvg"-->
-<!--        android:textColor="@color/white"-->
-<!--        app:layout_constraintBottom_toBottomOf="parent"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.528"-->
-<!--        app:layout_constraintStart_toStartOf="parent"-->
-<!--        app:layout_constraintTop_toTopOf="parent" />-->
 
     <TextView
         android:id="@+id/textMinSleep"
