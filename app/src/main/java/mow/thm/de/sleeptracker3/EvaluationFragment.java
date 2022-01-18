@@ -341,14 +341,15 @@ public class EvaluationFragment extends Fragment {
                                 text += " than your average Sleep ("+ textDurationHrsAvg + "h) and\n";
                                 text+= ((moreThanMinSleep) ? "more" : "less");
                                 text+= " than your minimum Sleep.\n\n";
-                                text+= ((moreThanMinSleep) ? "" : ":(");
                             }
                             textViewDurationTime.setText(text);
 
+                            ImageView imgViewSmiley = (ImageView) rootView.findViewById(R.id.smiley);
+
                             if(moreThanMinSleep) {
-                                ImageView imgView = (ImageView) rootView.findViewById(R.id.happy);
-                                if(imgView != null)
-                                    imgView.setVisibility(View.VISIBLE);
+                                imgViewSmiley.setImageResource(R.drawable.smiley_happy);
+                            } else {
+                                imgViewSmiley.setImageResource(R.drawable.smiley_sad);
                             }
 
                         } catch (ParseException e) {

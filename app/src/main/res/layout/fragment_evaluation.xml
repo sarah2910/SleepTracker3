@@ -120,16 +120,15 @@
         app:layout_constraintVertical_bias="0.655" />
 
     <ImageView
-        android:id="@+id/happy"
+        android:id="@+id/smiley"
         android:layout_width="55dp"
         android:layout_height="78dp"
-        android:src="@drawable/smiley_happy"
+        android:src="@drawable/smiley_neutral"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.518"
-        android:visibility="invisible"/>
+        app:layout_constraintVertical_bias="0.518" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
