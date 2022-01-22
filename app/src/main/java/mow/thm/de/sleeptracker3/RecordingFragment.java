@@ -37,10 +37,13 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -84,8 +87,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 //    float allX=0;
 //    int i=1;
 
-
-
     // Wachzeiten:
     double peakDiff = 0.15; // Differenz zu Durchschnitt, ab dem Peak erkannt wird
 
@@ -125,9 +126,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     Date tmpDateY2;
     Date tmpDateZ2;
     Date tmpDateLast2;
-
-
-
 
     int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
 
@@ -385,7 +383,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                     }
                                 }
 
-                                // TODO: Leichter Schlaf:
+                                // Leichter Schlaf:
                                 if(diffX>peakDiff2 || diffY>peakDiff2 || diffZ>peakDiff2) {
 
                                     if(tmpDateLast2 == null)
@@ -423,7 +421,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                         tmpDateZ2 = nowDate;
                                     }
                                 }
-                                // TODO ENDE
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
@@ -480,7 +477,6 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                 String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
 
-                //Leichter Schlaf und "Wachzeiten!"
                 // Wachzeiten:
                 historyUser.child(textStartingTime).child("Analytics").child("Awake").setValue(analytics);
                 // Leichter Schlaf:
@@ -503,11 +499,23 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         timeOfNumAwakeAll.addAll(timeOfNumAwakeX);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeY);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeZ);
+
+        Set<String> set = new HashSet<>(timeOfNumAwakeAll);
+        timeOfNumAwakeAll.clear();
+        timeOfNumAwakeAll.addAll(set);
+
+        Collections.sort(timeOfNumAwakeAll);
     }
     public void calcTimeAll2() {
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeX2);
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeY2);
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeZ2);
+
+        Set<String> set = new HashSet<>(timeOfNumAwakeAll);
+        timeOfNumAwakeAll2.clear();
+        timeOfNumAwakeAll2.addAll(set);
+
+        Collections.sort(timeOfNumAwakeAll2);
     }
 
     public double calcListAvg(ArrayList<Float> list) {
