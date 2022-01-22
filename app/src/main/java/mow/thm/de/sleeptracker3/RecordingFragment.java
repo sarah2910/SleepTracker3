@@ -115,7 +115,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     ArrayList<String> timeOfNumAwakeX2 = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY2 = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeZ2 = new ArrayList<>();
-    ArrayList<String> timeOfNumAwakeAll2 = new ArrayList<>();
+    public static ArrayList<String> timeOfNumAwakeAll2 = new ArrayList<>();
 
     int timesAwakeX2 = 0;
     int timesAwakeY2 = 0;

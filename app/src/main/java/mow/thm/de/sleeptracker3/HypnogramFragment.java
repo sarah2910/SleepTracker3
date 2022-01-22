@@ -45,13 +45,18 @@ public class HypnogramFragment extends Fragment {
 
     PointsGraphSeries<DataPoint> xySeries;
 
-    ArrayList<String> timeOfNumAwakeAll = new ArrayList<>();
-
     private Button graphBtn;
     private Button printBtn;
 
-    private float[] Schlafanteile = {20.0f, 40.0f, 40.0f};
-    private String[] Schlafkategorien = {"leichter Schlaf", "mittlerer Schlaf", "tiefer Schlaf"};
+    private float N = 0.0f;
+    private float AnzahlAwake = 0.0f;
+    private float AnzahlLight = 0.0f;
+    private float AnzahlMedium = 0.0f;
+    private float AnteilAwake = 0.0f;
+    private float AnteilLight = 0.0f;
+    private float AnteilMedium = 0.0f;
+    private float[] Schlafanteile = {20.0f, 40.0f, 0.0f};
+    private String[] Schlafkategorien = {"Wachzustand", "leichter Schlaf", "tiefer Schlaf"};
     PieChart pieChart;
 
     //GraphView mScatterPlot;
@@ -90,7 +95,7 @@ public class HypnogramFragment extends Fragment {
         Description description = pieChart.getDescription();
         //mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
         //xyValueArray = new ArrayList<>();
-        timeOfNumAwakeAll = RecordingFragment.timeOfNumAwakeAll;
+        //timeOfNumAwakeAll = RecordingFragment.timeOfNumAwakeAll;
 
         description.setText("Anteile von leichtem, mittlerem und tiefem Schlaf");
         pieChart.setRotationEnabled(true);
@@ -98,7 +103,7 @@ public class HypnogramFragment extends Fragment {
         pieChart.setCenterText("Schlafanteile");
         pieChart.setCenterTextSize(10);
 
-        addDataSet();
+
 
         //xySeries = new PointsGraphSeries<>();
         graphBtn.setOnClickListener(new View.OnClickListener() {
@@ -108,16 +113,44 @@ public class HypnogramFragment extends Fragment {
                 xySeries = new PointsGraphSeries<>();
                 createScatterPlot();
                 */
+
+                if (RecordingFragment.timeOfNumAwakeAll2.size() != 0 && RecordingFragment.timeOfNumAwakeAll.size() != 0) {
+                    System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
+                    AnzahlAwake = RecordingFragment.timeOfNumAwakeAll.size();
+                    AnzahlLight = RecordingFragment.timeOfNumAwakeAll2.size();
+                    AnzahlMedium = 0.0f;
+
+                    System.out.println("AnzahlAwake " + AnzahlAwake);
+                    System.out.println("AnzahlLight " + AnzahlLight);
+
+                    N = AnzahlAwake + AnzahlLight + AnteilMedium;
+
+                    AnteilAwake = AnzahlAwake / N * 100;
+                    AnteilLight = AnzahlLight / N * 100;
+                    AnteilMedium = AnzahlMedium / N * 100;
+
+                    Schlafanteile[0] = AnteilAwake;
+                    Schlafanteile[1] = AnteilLight;
+                    Schlafanteile[2] = AnteilMedium;
+
+                    addDataSet();
+                } else {
+                    toastMessage("Noch keine aktuellen Daten vorhanden");
+                }
+
+
+
             }
         });
 
         printBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                /*
                 for(int i = 0; i < timeOfNumAwakeAll.size(); i++) {
                     System.out.println("Datum " + i + ":" + timeOfNumAwakeAll.get(i));
                 }
-
+                */
             }
         });
 
@@ -126,6 +159,7 @@ public class HypnogramFragment extends Fragment {
 
         return rootView;
     }
+
 
     private void addDataSet() {
         ArrayList<PieEntry> EinträgeSchlafanteile = new ArrayList<>();
