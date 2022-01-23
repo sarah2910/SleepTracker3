@@ -14,6 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.Legend;
@@ -47,6 +55,24 @@ public class HypnogramFragment extends Fragment {
 
     private Button graphBtn;
     private Button printBtn;
+
+    String userChild;
+    final FirebaseDatabase database = FirebaseDatabase.getInstance();
+    DatabaseReference databaseReferenceHistory;
+    DatabaseReference historyUser;
+    DatabaseReference lastRecording;
+    DatabaseReference analytics;
+    DatabaseReference awake;
+    DatabaseReference numAwakeAll;
+    DatabaseReference lightSleep;
+    DatabaseReference numLightSleepAll;
+
+    DatabaseReference databaseReferenceMovementTime;
+    DatabaseReference movementTimeUser;
+    DatabaseReference startingTime;
+
+    String Startzeit;
+
 
     private float N = 0.0f;
     private float AnzahlAwake = 0.0f;
@@ -89,6 +115,30 @@ public class HypnogramFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.fragment_hypnogram, container, false);
 
+        FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+        assert currentFirebaseUser != null;
+        userChild = currentFirebaseUser.getUid()+"";
+
+        databaseReferenceMovementTime = database.getReference("MovementTime");
+        movementTimeUser = databaseReferenceMovementTime.child(userChild);
+        startingTime = movementTimeUser.child("startingTime");
+
+        startingTime.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Startzeit = snapshot.getValue(String.class);
+                System.out.println(Startzeit);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
         graphBtn = (Button)rootView.findViewById(R.id.chartBtn);
         printBtn = (Button)rootView.findViewById(R.id.printBtn);
         pieChart = (PieChart)rootView.findViewById(R.id.pieChart);
@@ -113,30 +163,62 @@ public class HypnogramFragment extends Fragment {
                 xySeries = new PointsGraphSeries<>();
                 createScatterPlot();
                 */
+                System.out.println("STARTZEIT: " + Startzeit);
 
-                if (RecordingFragment.timeOfNumAwakeAll2.size() != 0 && RecordingFragment.timeOfNumAwakeAll.size() != 0) {
-                    System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
-                    AnzahlAwake = RecordingFragment.timeOfNumAwakeAll.size();
-                    AnzahlLight = RecordingFragment.timeOfNumAwakeAll2.size();
-                    AnzahlMedium = 0.0f;
+                databaseReferenceHistory = database.getReference("History");
+                historyUser = databaseReferenceHistory.child(userChild);
+                lastRecording = historyUser.child(Startzeit);
 
-                    System.out.println("AnzahlAwake " + AnzahlAwake);
-                    System.out.println("AnzahlLight " + AnzahlLight);
+                analytics = lastRecording.child("Analytics");
 
-                    N = AnzahlAwake + AnzahlLight + AnteilMedium;
+                awake = analytics.child("Awake");
+                numAwakeAll = awake.child("numAwakeAll");
 
-                    AnteilAwake = AnzahlAwake / N * 100;
-                    AnteilLight = AnzahlLight / N * 100;
-                    AnteilMedium = AnzahlMedium / N * 100;
+                lightSleep = analytics.child("LightSleep");
+                numLightSleepAll = lightSleep.child("numAwakeAll");
 
-                    Schlafanteile[0] = AnteilAwake;
-                    Schlafanteile[1] = AnteilLight;
-                    Schlafanteile[2] = AnteilMedium;
+                numAwakeAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        AnzahlAwake = snapshot.getValue(Long.class);
+                    }
 
-                    addDataSet();
-                } else {
-                    toastMessage("Noch keine aktuellen Daten vorhanden");
-                }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+                numLightSleepAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        AnzahlLight = snapshot.getValue(Long.class);
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
+                System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
+                AnzahlMedium = 0.0f;
+
+                System.out.println("AnzahlAwake " + AnzahlAwake);
+                System.out.println("AnzahlLight " + AnzahlLight);
+
+                N = AnzahlAwake + AnzahlLight + AnteilMedium;
+
+                AnteilAwake = AnzahlAwake / N * 100;
+                AnteilLight = AnzahlLight / N * 100;
+                AnteilMedium = AnzahlMedium / N * 100;
+
+                Schlafanteile[0] = AnteilAwake;
+                Schlafanteile[1] = AnteilLight;
+                Schlafanteile[2] = AnteilMedium;
+
+                addDataSet();
+
 
 
 
