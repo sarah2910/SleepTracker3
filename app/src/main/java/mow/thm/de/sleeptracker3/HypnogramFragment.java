@@ -203,7 +203,7 @@ public class HypnogramFragment extends Fragment {
                         e.printStackTrace();
                     }
 
-                    AnzahlLight = AnzahlAwake - AnzahlLight;
+                    AnzahlLight = AnzahlLight - AnzahlAwake;
 
                     AnzahlSleep = N - (AnzahlLight + AnzahlAwake);
 
