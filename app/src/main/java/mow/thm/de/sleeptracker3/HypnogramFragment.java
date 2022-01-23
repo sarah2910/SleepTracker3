@@ -33,7 +33,10 @@ import com.jjoe64.graphview.helper.StaticLabelsFormatter;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.PointsGraphSeries;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -70,18 +73,20 @@ public class HypnogramFragment extends Fragment {
     DatabaseReference databaseReferenceMovementTime;
     DatabaseReference movementTimeUser;
     DatabaseReference startingTime;
+    DatabaseReference endingTime;
 
     String Startzeit;
+    String Endzeit;
 
     boolean fertig = false;
 
     private float N = 0.0f;
     private float AnzahlAwake = 0.0f;
     private float AnzahlLight = 0.0f;
-    private float AnzahlMedium = 0.0f;
+    private float AnzahlSleep = 0.0f;
     private float AnteilAwake = 0.0f;
     private float AnteilLight = 0.0f;
-    private float AnteilMedium = 0.0f;
+    private float AnteilSleep = 0.0f;
     private float[] Schlafanteile = {20.0f, 40.0f, 0.0f};
     private String[] Schlafkategorien = {"Wachzustand", "leichter Schlaf", "tiefer Schlaf"};
     PieChart pieChart;
@@ -123,12 +128,25 @@ public class HypnogramFragment extends Fragment {
         databaseReferenceMovementTime = database.getReference("MovementTime");
         movementTimeUser = databaseReferenceMovementTime.child(userChild);
         startingTime = movementTimeUser.child("startingTime");
+        endingTime = movementTimeUser.child("endingTime");
 
         startingTime.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Startzeit = snapshot.getValue(String.class);
                 System.out.println(Startzeit);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        endingTime.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Endzeit = snapshot.getValue(String.class);
             }
 
             @Override
@@ -167,20 +185,38 @@ public class HypnogramFragment extends Fragment {
 
                 if(fertig) {
                     System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
-                    AnzahlMedium = 0.0f;
+
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+
+                    try {
+                        Date d1 = sdf.parse(Startzeit);
+                        Date d2 = sdf.parse(Endzeit);
+
+                        long diff_ms = d2.getTime() - d1.getTime();
+                        long diff_s = (diff_ms / 1000) % 60;
+
+                        N = Math.abs(diff_s / 3);
+
+                        System.out.println("N ist: " + N);
+
+                    } catch (ParseException e) {
+                        e.printStackTrace();
+                    }
+
+                    AnzahlLight = AnzahlAwake - AnzahlLight;
+
+                    AnzahlSleep = N - (AnzahlLight + AnzahlAwake);
 
                     System.out.println("AnzahlAwake " + AnzahlAwake);
                     System.out.println("AnzahlLight " + AnzahlLight);
 
-                    N = AnzahlAwake + AnzahlLight + AnzahlMedium;
-
                     AnteilAwake = AnzahlAwake / N * 100;
                     AnteilLight = AnzahlLight / N * 100;
-                    AnteilMedium = AnzahlMedium / N * 100;
+                    AnteilSleep = AnzahlSleep / N * 100;
 
                     Schlafanteile[0] = AnteilAwake;
                     Schlafanteile[1] = AnteilLight;
-                    Schlafanteile[2] = AnteilMedium;
+                    Schlafanteile[2] = AnteilSleep;
 
                     addDataSet();
                 } else {
