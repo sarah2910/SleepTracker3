@@ -73,6 +73,8 @@ public class HypnogramFragment extends Fragment {
 
     String Startzeit;
 
+    int test;
+
 
     private float N = 0.0f;
     private float AnzahlAwake = 0.0f;
