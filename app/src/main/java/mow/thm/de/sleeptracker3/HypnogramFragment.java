@@ -54,7 +54,7 @@ public class HypnogramFragment extends Fragment {
     PointsGraphSeries<DataPoint> xySeries;
 
     private Button graphBtn;
-    private Button printBtn;
+    private Button prepareBtn;
 
     String userChild;
     final FirebaseDatabase database = FirebaseDatabase.getInstance();
@@ -73,8 +73,7 @@ public class HypnogramFragment extends Fragment {
 
     String Startzeit;
 
-    int test;
-
+    boolean fertig = false;
 
     private float N = 0.0f;
     private float AnzahlAwake = 0.0f;
@@ -142,7 +141,7 @@ public class HypnogramFragment extends Fragment {
 
 
         graphBtn = (Button)rootView.findViewById(R.id.chartBtn);
-        printBtn = (Button)rootView.findViewById(R.id.printBtn);
+        prepareBtn = (Button)rootView.findViewById(R.id.prepareBtn);
         pieChart = (PieChart)rootView.findViewById(R.id.pieChart);
         Description description = pieChart.getDescription();
         //mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
@@ -165,61 +164,32 @@ public class HypnogramFragment extends Fragment {
                 xySeries = new PointsGraphSeries<>();
                 createScatterPlot();
                 */
-                System.out.println("STARTZEIT: " + Startzeit);
 
-                databaseReferenceHistory = database.getReference("History");
-                historyUser = databaseReferenceHistory.child(userChild);
-                lastRecording = historyUser.child(Startzeit);
+                if(fertig) {
+                    System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
+                    AnzahlMedium = 0.0f;
 
-                analytics = lastRecording.child("Analytics");
+                    System.out.println("AnzahlAwake " + AnzahlAwake);
+                    System.out.println("AnzahlLight " + AnzahlLight);
 
-                awake = analytics.child("Awake");
-                numAwakeAll = awake.child("numAwakeAll");
+                    N = AnzahlAwake + AnzahlLight + AnzahlMedium;
 
-                lightSleep = analytics.child("LightSleep");
-                numLightSleepAll = lightSleep.child("numAwakeAll");
+                    AnteilAwake = AnzahlAwake / N * 100;
+                    AnteilLight = AnzahlLight / N * 100;
+                    AnteilMedium = AnzahlMedium / N * 100;
 
-                numAwakeAll.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        AnzahlAwake = snapshot.getValue(Long.class);
-                    }
+                    Schlafanteile[0] = AnteilAwake;
+                    Schlafanteile[1] = AnteilLight;
+                    Schlafanteile[2] = AnteilMedium;
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    addDataSet();
+                } else {
+                    toastMessage("Daten wurden noch nicht vorbereitet!");
+                }
 
-                    }
-                });
 
-                numLightSleepAll.addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        AnzahlLight = snapshot.getValue(Long.class);
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
 
-                    }
-                });
-
-                System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
-                AnzahlMedium = 0.0f;
-
-                System.out.println("AnzahlAwake " + AnzahlAwake);
-                System.out.println("AnzahlLight " + AnzahlLight);
-
-                N = AnzahlAwake + AnzahlLight + AnteilMedium;
-
-                AnteilAwake = AnzahlAwake / N * 100;
-                AnteilLight = AnzahlLight / N * 100;
-                AnteilMedium = AnzahlMedium / N * 100;
-
-                Schlafanteile[0] = AnteilAwake;
-                Schlafanteile[1] = AnteilLight;
-                Schlafanteile[2] = AnteilMedium;
-
-                addDataSet();
 
 
 
@@ -227,14 +197,57 @@ public class HypnogramFragment extends Fragment {
             }
         });
 
-        printBtn.setOnClickListener(new View.OnClickListener() {
+        prepareBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*
-                for(int i = 0; i < timeOfNumAwakeAll.size(); i++) {
-                    System.out.println("Datum " + i + ":" + timeOfNumAwakeAll.get(i));
+
+                if(!fertig) {
+                    System.out.println("STARTZEIT: " + Startzeit);
+
+                    databaseReferenceHistory = database.getReference("History");
+                    historyUser = databaseReferenceHistory.child(userChild);
+                    lastRecording = historyUser.child(Startzeit);
+
+                    analytics = lastRecording.child("Analytics");
+
+                    awake = analytics.child("Awake");
+                    numAwakeAll = awake.child("numAwakeAll");
+
+                    lightSleep = analytics.child("LightSleep");
+                    numLightSleepAll = lightSleep.child("numAwakeAll");
+
+                    numAwakeAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            AnzahlAwake = snapshot.getValue(Long.class);
+                            System.out.println(AnzahlAwake);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                    numLightSleepAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            AnzahlLight = snapshot.getValue(Long.class);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                    fertig = true;
+                    toastMessage("Daten wurden vorbereitet!");
+                } else {
+                    toastMessage("Daten wurden schon vorbereitet!");
                 }
-                */
+
+
             }
         });
 
