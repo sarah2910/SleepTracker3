@@ -534,27 +534,27 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         outState.putBoolean("startSensorBtnState", startSensorBtn.isEnabled());
     }
 
-    //TODO: Folgende Funktion stoppt das Recording bei Fragment Wechsel erfolgreich
-//    @RequiresApi(api = Build.VERSION_CODES.O)
-//    @Override
-//    public void onDestroyView() {
-//
-//        super.onDestroyView();
-//        System.out.println("ONDESTROYVIEW");
-//        if(stopSensorBtn.isEnabled())
-//        {
-//            timer.cancel();
-//            stopSensorBtn.setEnabled(false);
-//            startSensorBtn.setEnabled(true);
-//
-//            LocalDateTime now = LocalDateTime.now();
-//            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
-//            String endString = now.format(dateTimeFormatter);
-//            addEndTimeDataToFirebase(endString);
-//
-//            onPause();
-//        }
-//    }
+    // Folgende Funktion stoppt das Recording bei Fragment Wechsel erfolgreich
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onDestroyView() {
+
+        super.onDestroyView();
+        System.out.println("ONDESTROYVIEW");
+        if(stopSensorBtn.isEnabled())
+        {
+            timer.cancel();
+            stopSensorBtn.setEnabled(false);
+            startSensorBtn.setEnabled(true);
+
+            LocalDateTime now = LocalDateTime.now();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
+            String endString = now.format(dateTimeFormatter);
+            addEndTimeDataToFirebase(endString);
+
+            onPause();
+        }
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
