@@ -192,8 +192,12 @@ public class HypnogramFragment extends Fragment {
                         Date d1 = sdf.parse(Startzeit);
                         Date d2 = sdf.parse(Endzeit);
 
+
                         long diff_ms = d2.getTime() - d1.getTime();
-                        long diff_s = (diff_ms / 1000) % 60;
+                        System.out.println("Differenz: " + diff_ms / 1000);
+                        long diff_s = (diff_ms / 1000);
+
+                        System.out.println("Verstrichene Zeit in Sek.: " + diff_s);
 
                         N = Math.abs(diff_s / 3);
 
