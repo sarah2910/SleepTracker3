@@ -127,7 +127,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     Date tmpDateZ2;
     Date tmpDateLast2;
 
-    int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
+//    int durTimesAwake = 300000; // Wie lange gewartet wird, bis Uhrzeiten wieder als "Wach" gespeichert werden: in ms! --> Hier: 5 Minuten
 
 
     String textStartingTime;
@@ -346,41 +346,41 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                                     if(tmpDateLast == null)
                                         tmpDateLast = nowDate;
-                                    if(nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake) {
                                         timesAwakeAll++;
                                         tmpDateLast=nowDate;
-                                    }
+//                                    }
                                 }
 
                                 if(diffX>peakDiff) {
                                     timeOfNumAwakeX.add(date);
                                     if(tmpDateX == null)
                                         tmpDateX = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateX.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateX.getTime()>=durTimesAwake) {
                                         timesAwakeX++;
                                         tmpDateX = nowDate;
                                         System.out.println("X - timesAwakeX: " + timesAwakeX);
-                                    }
+//                                    }
                                 }
                                 if(diffY>peakDiff) {
                                     timeOfNumAwakeY.add(date);
                                     if(tmpDateY == null)
                                         tmpDateY = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateY.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateY.getTime()>=durTimesAwake) {
                                         timesAwakeY++;
                                         tmpDateY = nowDate;
                                         System.out.println("Y - timesAwakeY: " + timesAwakeY);
-                                    }
+//                                    }
                                 }
                                 if(diffZ>peakDiff) {
                                     timeOfNumAwakeZ.add(date);
                                     if(tmpDateZ == null)
                                         tmpDateZ = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateZ.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateZ.getTime()>=durTimesAwake) {
                                         timesAwakeZ++;
                                         tmpDateZ = nowDate;
                                         System.out.println("Z - timesAwakeZ: " + timesAwakeZ);
-                                    }
+//                                    }
                                 }
 
                                 // Leichter Schlaf:
@@ -388,38 +388,38 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
 
                                     if(tmpDateLast2 == null)
                                         tmpDateLast2 = nowDate;
-                                    if(nowDate.getTime()-tmpDateLast2.getTime()>durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateLast2.getTime()>durTimesAwake) {
                                         timesAwakeAll2++;
                                         tmpDateLast2=nowDate;
-                                    }
+//                                    }
                                 }
 
                                 if(diffX>peakDiff2) {
                                     timeOfNumAwakeX2.add(date);
                                     if(tmpDateX2 == null)
                                         tmpDateX2 = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateX2.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateX2.getTime()>=durTimesAwake) {
                                         timesAwakeX2++;
                                         tmpDateX2 = nowDate;
-                                    }
+//                                    }
                                 }
                                 if(diffY>peakDiff2) {
                                     timeOfNumAwakeY2.add(date);
                                     if(tmpDateY2 == null)
                                         tmpDateY2 = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateY2.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateY2.getTime()>=durTimesAwake) {
                                         timesAwakeY2++;
                                         tmpDateY2 = nowDate;
-                                    }
+//                                    }
                                 }
                                 if(diffZ>peakDiff2) {
                                     timeOfNumAwakeZ2.add(date);
                                     if(tmpDateZ2 == null)
                                         tmpDateZ2 = nowDate; // 1. Durchgang
-                                    if(nowDate.getTime()-tmpDateZ2.getTime()>=durTimesAwake) {
+//                                    if(nowDate.getTime()-tmpDateZ2.getTime()>=durTimesAwake) {
                                         timesAwakeZ2++;
                                         tmpDateZ2 = nowDate;
-                                    }
+//                                    }
                                 }
 
                             } catch (ParseException e) {
