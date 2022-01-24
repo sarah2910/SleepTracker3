@@ -2,6 +2,7 @@ package mow.thm.de.sleeptracker3;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -9,11 +10,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.github.mikephil.charting.components.LegendEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.highlight.Highlight;
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener;
+import com.github.mikephil.charting.utils.ColorTemplate;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -79,6 +86,7 @@ public class HypnogramFragment extends Fragment {
     String Endzeit;
 
     boolean fertig = false;
+    boolean printed = false;
 
     private float N = 0.0f;
     private float AnzahlAwake = 0.0f;
@@ -162,17 +170,21 @@ public class HypnogramFragment extends Fragment {
         prepareBtn = (Button)rootView.findViewById(R.id.prepareBtn);
         pieChart = (PieChart)rootView.findViewById(R.id.pieChart);
         Description description = pieChart.getDescription();
+        Legend Legende = pieChart.getLegend();
+        Legende.setEnabled(false);
+
         //mScatterPlot = (GraphView)rootView.findViewById(R.id.testGraph);
         //xyValueArray = new ArrayList<>();
         //timeOfNumAwakeAll = RecordingFragment.timeOfNumAwakeAll;
 
-        description.setText("Anteile von leichtem, mittlerem und tiefem Schlaf");
+        //description.setText("Anteile von Wachzuständen ,leichtem und tiefem Schlaf");
+        //description.setTextColor(Color.WHITE);
+        //description.setTextSize(13);
+        description.setEnabled(false);
         pieChart.setRotationEnabled(true);
         pieChart.setHoleRadius(25.f);
-        pieChart.setCenterText("Schlafanteile");
+        pieChart.setCenterText("Schlafanteile in %");
         pieChart.setCenterTextSize(10);
-
-
 
         //xySeries = new PointsGraphSeries<>();
         graphBtn.setOnClickListener(new View.OnClickListener() {
@@ -183,7 +195,7 @@ public class HypnogramFragment extends Fragment {
                 createScatterPlot();
                 */
 
-                if(fertig) {
+                if(fertig && !printed) {
                     System.out.println("TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST");
 
                     SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
@@ -223,8 +235,18 @@ public class HypnogramFragment extends Fragment {
                     Schlafanteile[2] = AnteilSleep;
 
                     addDataSet();
+
+                    printed = true;
                 } else {
-                    toastMessage("Daten wurden noch nicht vorbereitet!");
+
+                    if(!fertig) {
+                        toastMessage("Daten wurden noch nicht vorbereitet!");
+                    }
+
+                    if(printed) {
+                        toastMessage("Graph wurde schon gezeichnet!");
+                    }
+
                 }
 
 
@@ -241,51 +263,60 @@ public class HypnogramFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                if(!fertig) {
-                    System.out.println("STARTZEIT: " + Startzeit);
+                try {
 
-                    databaseReferenceHistory = database.getReference("History");
-                    historyUser = databaseReferenceHistory.child(userChild);
-                    lastRecording = historyUser.child(Startzeit);
+                    if(!fertig) {
+                        System.out.println("STARTZEIT: " + Startzeit);
 
-                    analytics = lastRecording.child("Analytics");
+                        databaseReferenceHistory = database.getReference("History");
+                        historyUser = databaseReferenceHistory.child(userChild);
+                        lastRecording = historyUser.child(Startzeit);
 
-                    awake = analytics.child("Awake");
-                    numAwakeAll = awake.child("numAwakeAll");
+                        analytics = lastRecording.child("Analytics");
 
-                    lightSleep = analytics.child("LightSleep");
-                    numLightSleepAll = lightSleep.child("numAwakeAll");
+                        awake = analytics.child("Awake");
+                        numAwakeAll = awake.child("numAwakeAll");
 
-                    numAwakeAll.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            AnzahlAwake = snapshot.getValue(Long.class);
-                            System.out.println(AnzahlAwake);
-                        }
+                        lightSleep = analytics.child("LightSleep");
+                        numLightSleepAll = lightSleep.child("numAwakeAll");
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                        numAwakeAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                AnzahlAwake = snapshot.getValue(Long.class);
+                                System.out.println(AnzahlAwake);
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
-                    numLightSleepAll.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            AnzahlLight = snapshot.getValue(Long.class);
-                        }
+                            }
+                        });
 
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
+                        numLightSleepAll.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                AnzahlLight = snapshot.getValue(Long.class);
+                            }
 
-                        }
-                    });
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
-                    fertig = true;
-                    toastMessage("Daten wurden vorbereitet!");
-                } else {
-                    toastMessage("Daten wurden schon vorbereitet!");
+                            }
+                        });
+
+                        fertig = true;
+                        toastMessage("Daten wurden vorbereitet!");
+                    } else {
+                        toastMessage("Daten wurden schon vorbereitet!");
+                    }
+
                 }
+                catch(Exception e) {
+                    toastMessage("Failed to connect to Database. Try again!");
+                }
+
+
 
 
             }
