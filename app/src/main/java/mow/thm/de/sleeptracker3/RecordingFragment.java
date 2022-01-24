@@ -110,7 +110,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
     Date tmpDateLast;
 
     // Leichter Schlaf:
-    double peakDiff2 = 0.05; // erkennt auch kleinere Differenzen
+    double peakDiff2 = 0.025; // erkennt auch kleinere Differenzen
 
     ArrayList<String> timeOfNumAwakeX2 = new ArrayList<>();
     ArrayList<String> timeOfNumAwakeY2 = new ArrayList<>();
