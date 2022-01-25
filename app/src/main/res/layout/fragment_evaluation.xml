@@ -12,7 +12,7 @@
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Evaluation"
+        android:text="Evaluation of your sleep"
         android:textColor="@color/white"
         android:textSize="22sp"
         android:textStyle="bold"

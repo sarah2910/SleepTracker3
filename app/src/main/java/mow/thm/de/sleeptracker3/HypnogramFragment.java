@@ -183,7 +183,7 @@ public class HypnogramFragment extends Fragment {
         description.setEnabled(false);
         pieChart.setRotationEnabled(true);
         pieChart.setHoleRadius(25.f);
-        pieChart.setCenterText("Schlafanteile in %");
+        pieChart.setCenterText("Portions of Sleep [%]");
         pieChart.setCenterTextSize(10);
 
         //xySeries = new PointsGraphSeries<>();
@@ -240,11 +240,11 @@ public class HypnogramFragment extends Fragment {
                 } else {
 
                     if(!fertig) {
-                        toastMessage("Daten wurden noch nicht vorbereitet!");
+                        toastMessage("Data has not been prepared yet!");
                     }
 
                     if(printed) {
-                        toastMessage("Graph wurde schon gezeichnet!");
+                        toastMessage("Piechart has already been created!");
                     }
 
                 }
@@ -306,9 +306,9 @@ public class HypnogramFragment extends Fragment {
                         });
 
                         fertig = true;
-                        toastMessage("Daten wurden vorbereitet!");
+                        toastMessage("Data has been prepared!");
                     } else {
-                        toastMessage("Daten wurden schon vorbereitet!");
+                        toastMessage("Data has been prepared already!");
                     }
 
                 }
