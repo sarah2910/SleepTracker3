@@ -1,11 +1,16 @@
 package mow.thm.de.sleeptracker3;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -86,6 +91,7 @@ public class SettingsFragment extends Fragment {
         //Button logoutBtn = findViewById(R.id.idBtnLogout);
         Button logoutBtn = view.findViewById(R.id.idBtnLogout);
         Button deleteBtn = view.findViewById(R.id.idBtnDelete);
+        Button deleteAllBtn = view.findViewById(R.id.idBtnDeleteAll);
 
         // adding onclick listener for our logout button.
         logoutBtn.setOnClickListener(new View.OnClickListener() {
@@ -130,6 +136,48 @@ public class SettingsFragment extends Fragment {
                 DatabaseReference databaseReferenceUser = firebaseDatabase.getReference("MovementInfo").child(userChild+"");
 
                 databaseReferenceUser.removeValue();
+
+            }
+
+        });
+
+        deleteAllBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                FirebaseUser currentFirebaseUser = FirebaseAuth.getInstance().getCurrentUser() ;
+
+                if(currentFirebaseUser != null) {
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Are you sure you want to delete ALL User Data?");
+
+                    builder.setPositiveButton(Html.fromHtml("<font color='#FFFFFF'>YES</font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            String userChild = currentFirebaseUser.getUid() + "";
+                            DatabaseReference databaseReferenceMovementInfo = firebaseDatabase.getReference("MovementInfo").child(userChild + "");
+                            DatabaseReference databaseReferenceMovementTime = firebaseDatabase.getReference("MovementTime").child(userChild + "");
+                            DatabaseReference databaseReferenceHistory = firebaseDatabase.getReference("History").child(userChild + "");
+
+                            databaseReferenceMovementInfo.removeValue();
+                            databaseReferenceMovementTime.removeValue();
+                            databaseReferenceHistory.removeValue();
+
+                            Toast.makeText(Objects.requireNonNull(getActivity()).getApplicationContext(), "All User Data deleted!", Toast.LENGTH_SHORT).show();
+
+                        }
+                    });
+                    builder.setNegativeButton(Html.fromHtml("<font color='#FFFFFF'>CANCEL</font>"), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+
+                    builder.show();
+                }
 
             }
 
