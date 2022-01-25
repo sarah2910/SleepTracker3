@@ -462,26 +462,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                     System.out.println(timeOfNumAwakeX);
                 }
 
-                calcTimeAll(); //timeOfNumAwakeAll berechnen
-                calcTimeAll2();
-
-                Analytics analytics = new Analytics(timesAwakeX, timeOfNumAwakeX,
-                                                    timesAwakeY, timeOfNumAwakeY,
-                                                    timesAwakeZ, timeOfNumAwakeZ,
-                                                    timesAwakeAll, timeOfNumAwakeAll);
-
-                Analytics analytics2 = new Analytics(timesAwakeX2, timeOfNumAwakeX2,
-                        timesAwakeY2, timeOfNumAwakeY2,
-                        timesAwakeZ2, timeOfNumAwakeZ2,
-                        timesAwakeAll2, timeOfNumAwakeAll2);
-
-                String dateChild = textStartingTime.substring(0,10); // Datum ohne Uhrzeit
-
-                // Wachzeiten:
-                historyUser.child(textStartingTime).child("Analytics").child("Awake").setValue(analytics);
-                // Leichter Schlaf:
-                historyUser.child(textStartingTime).child("Analytics").child("LightSleep").setValue(analytics2);
-
+                addDataToAnalytics();
 
                 LocalDateTime now = LocalDateTime.now();
                 DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
@@ -495,7 +476,27 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         return rootView;
     }
 
+    public void addDataToAnalytics() {
+        calcTimeAll(); //timeOfNumAwakeAll für Wachzeiten und leichten Schlaf berechnen
+
+        Analytics analytics = new Analytics(timesAwakeX, timeOfNumAwakeX,
+                timesAwakeY, timeOfNumAwakeY,
+                timesAwakeZ, timeOfNumAwakeZ,
+                timesAwakeAll, timeOfNumAwakeAll);
+
+        Analytics analytics2 = new Analytics(timesAwakeX2, timeOfNumAwakeX2,
+                timesAwakeY2, timeOfNumAwakeY2,
+                timesAwakeZ2, timeOfNumAwakeZ2,
+                timesAwakeAll2, timeOfNumAwakeAll2);
+
+        // Wachzeiten:
+        historyUser.child(textStartingTime).child("Analytics").child("Awake").setValue(analytics);
+        // Leichter Schlaf:
+        historyUser.child(textStartingTime).child("Analytics").child("LightSleep").setValue(analytics2);
+    }
+
     public void calcTimeAll() {
+        // Wachzeiten:
         timeOfNumAwakeAll.addAll(timeOfNumAwakeX);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeY);
         timeOfNumAwakeAll.addAll(timeOfNumAwakeZ);
@@ -505,15 +506,15 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         timeOfNumAwakeAll.addAll(set);
 
         Collections.sort(timeOfNumAwakeAll);
-    }
-    public void calcTimeAll2() {
+
+        // Leichter Schlaf:
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeX2);
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeY2);
         timeOfNumAwakeAll2.addAll(timeOfNumAwakeZ2);
 
-        Set<String> set = new HashSet<>(timeOfNumAwakeAll);
+        Set<String> set2 = new HashSet<>(timeOfNumAwakeAll);
         timeOfNumAwakeAll2.clear();
-        timeOfNumAwakeAll2.addAll(set);
+        timeOfNumAwakeAll2.addAll(set2);
 
         Collections.sort(timeOfNumAwakeAll2);
     }
@@ -546,6 +547,8 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
             timer.cancel();
             stopSensorBtn.setEnabled(false);
             startSensorBtn.setEnabled(true);
+
+            addDataToAnalytics();
 
             LocalDateTime now = LocalDateTime.now();
             DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss"); // Geht nur ab API Level 26!
