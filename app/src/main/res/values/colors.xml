@@ -18,4 +18,6 @@
 
     <color name="active_el">#FFF173</color>
     <color name="statusbar">#FF000000</color>
+
+    <color name="warning">#fff</color>
 </resources>
