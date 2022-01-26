@@ -79,6 +79,14 @@ public class EvaluationFragment extends Fragment {
     DatabaseReference startingTime;
     DatabaseReference endingTime;
 
+    Date d1;
+    Date d2;
+
+    long diff_ms;
+    long diff_s;
+    long diff_min;
+    long diff_h;
+
     //TODO: Analyse:
     int numAwake = 0;
     ArrayList<String> timeOfNumAwake = new ArrayList<>();
@@ -284,6 +292,43 @@ public class EvaluationFragment extends Fragment {
             }
         });
 
+        historyUser.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (textDurationHrsAvg != null) {
+                    float durationFloat = Float.parseFloat(textDurationHrsAvg);
+                    moreThanAvg = hoursOfSleep > durationFloat;
+                    DecimalFormat df = new DecimalFormat("#.##"); // Nur 2 Nachkommastellen
+                    String formattedTextDurationHrsAvg = df.format(durationFloat);
+
+                    moreThanMinSleep = (hoursOfSleep > minSleep);
+
+                    String text = "You slept " + diff_h + " Hours, " + diff_min + " Minutes, " + diff_s + " Seconds!";
+
+                    if (moreThanAvg != null) {
+                        text += " \n\nThis is ";
+                        text += ((moreThanAvg) ? "more" : "less");
+                        text += " than your average Sleep (" + formattedTextDurationHrsAvg + "h) and\n";
+                        text += ((moreThanMinSleep) ? "more" : "less");
+                        text += " than your minimum Sleep ("+ minSleep + ").\n\n";
+
+                        ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
+                        if (moreThanMinSleep) {
+                            imgViewSmiley.setImageResource(R.drawable.smiley_happy);
+                        } else {
+                            imgViewSmiley.setImageResource(R.drawable.smiley_sad);
+                        }
+                    }
+                    textViewDurationTime.setText(text);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         endingTime.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -299,13 +344,13 @@ public class EvaluationFragment extends Fragment {
 
                         SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
                         try {
-                            Date d1 = sdf.parse(start);
-                            Date d2 = sdf.parse(end);
+                            d1 = sdf.parse(start);
+                            d2 = sdf.parse(end);
 
-                            long diff_ms = d2.getTime() - d1.getTime();
-                            long diff_s = (diff_ms / 1000) % 60;
-                            long diff_min = (diff_ms / (1000 * 60)) % 60;
-                            long diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
+                            diff_ms = d2.getTime() - d1.getTime();
+                            diff_s = (diff_ms / 1000) % 60;
+                            diff_min = (diff_ms / (1000 * 60)) % 60;
+                            diff_h = (diff_ms / (1000 * 60 * 60)) % 24;
 
                             hoursOfSleep = (float) ((float) diff_ms / (1000 * 60)) / 60;
 
@@ -325,7 +370,7 @@ public class EvaluationFragment extends Fragment {
                                     text += ((moreThanAvg) ? "more" : "less");
                                     text += " than your average Sleep (" + formattedTextDurationHrsAvg + "h) and\n";
                                     text += ((moreThanMinSleep) ? "more" : "less");
-                                    text += " than your minimum Sleep.\n\n";
+                                    text += " than your minimum Sleep ("+ minSleep + "h).\n\n";
 
                                     ImageView imgViewSmiley = rootView.findViewById(R.id.smiley);
                                     if (moreThanMinSleep) {
