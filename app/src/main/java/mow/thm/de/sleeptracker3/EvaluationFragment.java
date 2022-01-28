@@ -35,6 +35,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -58,7 +60,7 @@ public class EvaluationFragment extends Fragment {
     private String textDurationHrsAvg;
     private String allText;
 
-    HashMap<String, String> durList;
+    HashMap<Date, String> durList;
     String durHistory;
 
     ArrayList<String> avgTimeList;
@@ -170,11 +172,16 @@ public class EvaluationFragment extends Fragment {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
                 builder.setTitle("Sleep Duration History");
-                if(durHistory.length() > 0)
+                if(durHistory != null && durHistory.length() > 0)
                     builder.setMessage(durHistory);
                 else
                     builder.setMessage("LIST IS EMPTY");
 
+                builder.setPositiveButton(Html.fromHtml("<font color='#FFFFFF'>OK</font>"), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    }
+                });
 
                 builder.show();
             }
@@ -240,21 +247,37 @@ public class EvaluationFragment extends Fragment {
                 for(DataSnapshot dsp : snapshot.getChildren()) {
                     Object durationChild = dsp.child("SleepAvg").child("duration").getValue();
                     Object startChild = dsp.child("SleepAvg").child("startingTime").getValue();
-                    if(durationChild != null && startChild != null) {
-                        durList.put(startChild.toString(), durationChild.toString());
+
+                    String startTime = "";
+                    if(startChild != null)
+                        startTime = dsp.child("SleepAvg").child("startingTime").getValue().toString();
+                    SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                    try {
+                        Date startDate = sdf.parse(startTime);
+                        if(durationChild != null && startChild != null) {
+                            durList.put(startDate, durationChild.toString());
+                        }
+                    } catch (ParseException e) {
+                        e.printStackTrace();
                     }
                 }
                 if(durList.size() > 0) {
                     StringBuilder all = new StringBuilder("");
 
-                    for(Map.Entry<String, String> pair : durList.entrySet()) {
-                        String key = pair.getKey();
-                        String value = pair.getValue();
-                        double d = Double.parseDouble(value);
+                    // Einträge nach Datum und Uhrzeit sortieren:
+                    Map<Date, String> map = new TreeMap<Date, String>(durList);
+                    Set set = map.entrySet();
+                    for (Object o : set) {
+                        Map.Entry entry = (Map.Entry) o;
+                        Date startTime = (Date) entry.getKey();
+                        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss");
+                        String startTimeStr = sdf.format(startTime) + "";
+                        String dur = (String) entry.getValue();
+                        double d = Double.parseDouble(dur);
                         String pattern = "#.##";
                         DecimalFormat df = new DecimalFormat(pattern);
-                        String formattedValue = df.format(d);
-                        all.append(key).append(": ").append(formattedValue).append("h \n");
+                        String formattedDur = df.format(d);
+                        all.append(startTimeStr).append(": ").append(formattedDur).append("h \n");
                     }
                     durHistory = all.toString();
                 }

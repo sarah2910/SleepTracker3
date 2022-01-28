@@ -183,7 +183,7 @@ public class HypnogramFragment extends Fragment {
         description.setEnabled(false);
         pieChart.setRotationEnabled(true);
         pieChart.setHoleRadius(25.f);
-        pieChart.setCenterText("Portions of Sleep [%]");
+        pieChart.setCenterText("Sleep Quality [%]");
         pieChart.setCenterTextSize(10);
 
         //xySeries = new PointsGraphSeries<>();
