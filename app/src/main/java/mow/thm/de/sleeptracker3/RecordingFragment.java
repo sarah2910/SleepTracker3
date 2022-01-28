@@ -346,108 +346,64 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                                 Date nowDate = sdf.parse(date);
 
                                 // Wachzeiten:
-                                if(diffX>peakDiff || diffY>peakDiff || diffZ>peakDiff) {
-//                                    if(tmpDateLast == null)
-//                                        tmpDateLast = nowDate;
-//                                    if(nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake) {
-                                    timesAwakeAll++;
-                                    isAwake = true;
-                                    tmpDateLast=nowDate;
+                                Boolean awake = ( (diffX>peakDiff || diffY>peakDiff || diffZ>peakDiff) || (isAwake && (nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake)) );
+                                if(awake) {
+                                    if(diffX>peakDiff || diffY>peakDiff || diffZ>peakDiff) {
+                                        timesAwakeAll++;
+                                        isAwake = true;
+                                        tmpDateLast=nowDate;
 
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            Toast.makeText(getActivity().getApplicationContext(), "User is Awake!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-//                                    }
-                                } else if(isAwake && (nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake)){
-                                    // Erst wenn man sich x Minuten lang nicht (in dieser Differenz) bewegt hat, wird man als "nicht mehr wach" registriert und die x Minuten Einschlafzeit werden dazuberechnet
-                                    timesAwakeAll += awakeDur; // Immer noch x Minuten dazurechnen, bis User "wirklich" eingeschlafen st
-                                    isAwake = false;
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(getActivity().getApplicationContext(), "User is Awake!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    } else if(isAwake && (nowDate.getTime()-tmpDateLast.getTime()>durTimesAwake)){
+                                        // Erst wenn man sich x Minuten lang nicht (in dieser Differenz) bewegt hat, wird man als "nicht mehr wach" registriert und die x Minuten Einschlafzeit werden dazuberechnet
+                                        timesAwakeAll += awakeDur; // Immer noch x Minuten dazurechnen, bis User "wirklich" eingeschlafen st
+                                        isAwake = false;
 
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        public void run() {
-                                            Toast.makeText(getActivity().getApplicationContext(), "User is Asleep again!", Toast.LENGTH_SHORT).show();
-                                        }
-                                    });
-
-                                }
-
-                                if(diffX>peakDiff) {
-                                    timeOfNumAwakeX.add(date);
-//                                    if(tmpDateX == null)
-//                                        tmpDateX = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateX.getTime()>=durTimesAwake) {
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            public void run() {
+                                                Toast.makeText(getActivity().getApplicationContext(), "User is Asleep again!", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                                    }
+                                    if(diffX>peakDiff) {
+                                        timeOfNumAwakeX.add(date);
                                         timesAwakeX++;
-//                                        tmpDateX = nowDate;
-//                                        System.out.println("X - timesAwakeX: " + timesAwakeX);
-//                                    }
-                                }
-                                if(diffY>peakDiff) {
-                                    timeOfNumAwakeY.add(date);
-//                                    if(tmpDateY == null)
-//                                        tmpDateY = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateY.getTime()>=durTimesAwake) {
+                                    }
+                                    if(diffY>peakDiff) {
+                                        timeOfNumAwakeY.add(date);
                                         timesAwakeY++;
-//                                        tmpDateY = nowDate;
-//                                        System.out.println("Y - timesAwakeY: " + timesAwakeY);
-//                                    }
-                                }
-                                if(diffZ>peakDiff) {
-                                    timeOfNumAwakeZ.add(date);
-//                                    if(tmpDateZ == null)
-//                                        tmpDateZ = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateZ.getTime()>=durTimesAwake) {
+                                    }
+                                    if(diffZ>peakDiff) {
+                                        timeOfNumAwakeZ.add(date);
                                         timesAwakeZ++;
-//                                        tmpDateZ = nowDate;
-//                                        System.out.println("Z - timesAwakeZ: " + timesAwakeZ);
-//                                    }
-                                }
-
-                                // Leichter Schlaf:
-                                if(diffX>peakDiff2 || diffY>peakDiff2 || diffZ>peakDiff2) {
-
-//                                    if(tmpDateLast2 == null)
-//                                        tmpDateLast2 = nowDate;
-//                                    if(nowDate.getTime()-tmpDateLast2.getTime()>durTimesAwake) {
+                                    }
+                                } else { // not awake:
+                                    // Leichter Schlaf:
+                                    if(diffX>peakDiff2 || diffY>peakDiff2 || diffZ>peakDiff2) {
                                         timesAwakeAll2++;
-//                                        tmpDateLast2=nowDate;
-//                                    }
-                                }
+                                    }
 
-                                if(diffX>peakDiff2) {
-                                    timeOfNumAwakeX2.add(date);
-//                                    if(tmpDateX2 == null)
-//                                        tmpDateX2 = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateX2.getTime()>=durTimesAwake) {
+                                    if(diffX>peakDiff2) {
+                                        timeOfNumAwakeX2.add(date);
                                         timesAwakeX2++;
-//                                        tmpDateX2 = nowDate;
-//                                    }
-                                }
-                                if(diffY>peakDiff2) {
-                                    timeOfNumAwakeY2.add(date);
-//                                    if(tmpDateY2 == null)
-//                                        tmpDateY2 = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateY2.getTime()>=durTimesAwake) {
+                                    }
+                                    if(diffY>peakDiff2) {
+                                        timeOfNumAwakeY2.add(date);
                                         timesAwakeY2++;
-//                                        tmpDateY2 = nowDate;
-//                                    }
-                                }
-                                if(diffZ>peakDiff2) {
-                                    timeOfNumAwakeZ2.add(date);
-//                                    if(tmpDateZ2 == null)
-//                                        tmpDateZ2 = nowDate; // 1. Durchgang
-//                                    if(nowDate.getTime()-tmpDateZ2.getTime()>=durTimesAwake) {
+                                    }
+                                    if(diffZ>peakDiff2) {
+                                        timeOfNumAwakeZ2.add(date);
                                         timesAwakeZ2++;
-//                                        tmpDateZ2 = nowDate;
-//                                    }
+                                    }
                                 }
 
                             } catch (ParseException e) {
                                 e.printStackTrace();
                             }
-
-
                         }
 
                         System.out.println("Im Mittel alle 3 Sekunden auf der X Achse: " + x);
@@ -505,7 +461,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
                 timesAwakeZ, timeOfNumAwakeZ,
                 timesAwakeAll, timeOfNumAwakeAll);
 
-        Analytics analytics2 = new Analytics(timesAwakeX2, timeOfNumAwakeX2,
+        Analytics analyticsLight = new Analytics(timesAwakeX2, timeOfNumAwakeX2,
                 timesAwakeY2, timeOfNumAwakeY2,
                 timesAwakeZ2, timeOfNumAwakeZ2,
                 timesAwakeAll2, timeOfNumAwakeAll2);
@@ -513,7 +469,7 @@ public class RecordingFragment extends Fragment implements SensorEventListener {
         // Wachzeiten:
         historyUser.child(textStartingTime).child("Analytics").child("Awake").setValue(analytics);
         // Leichter Schlaf:
-        historyUser.child(textStartingTime).child("Analytics").child("LightSleep").setValue(analytics2);
+        historyUser.child(textStartingTime).child("Analytics").child("LightSleep").setValue(analyticsLight);
     }
 
     public void calcTimeAll() {
